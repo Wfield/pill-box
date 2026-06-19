@@ -1,0 +1,25 @@
+<view class="card-container">
+  <view class="card-header">
+    <view class="time-label">
+      <icon name="clock" size="40" color="#A8A29E" stroke="1.8" />
+      <text>{{med.time}} 的药</text>
+    </view>
+    <text class="missed-badge">超时未服</text>
+  </view>
+  <view class="med-section">
+    <text class="med-name">{{med.name}}</text>
+    <text class="med-detail">{{med.dose}} · {{med.note}}</text>
+  </view>
+  <button wx:if="{{madeUp}}" class="done-btn">
+    <view class="btn-content anim-pop">
+      <icon name="check" size="48" color="#FFFFFF" stroke="2.5" />
+      <text>已记录</text>
+    </view>
+  </button>
+  <button wx:else class="makeup-btn" bindtap="handleMakeUp">
+    <view class="btn-content">
+      <icon name="check" size="48" color="#44403C" stroke="2.5" />
+      <text>我吃了</text>
+    </view>
+  </button>
+</view>

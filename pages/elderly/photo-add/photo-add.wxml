@@ -1,0 +1,97 @@
+<!-- Step 1: Camera -->
+<view wx:if="{{step === 1}}" class="page-camera">
+  <view class="camera-top-bar">
+    <button class="cancel-btn" bindtap="goBack">取消</button>
+    <text class="camera-title">拍摄药盒</text>
+    <view class="spacer"></view>
+  </view>
+  <view class="camera-view">
+    <view class="camera-guide">
+      <icon name="camera" size="112" color="#A8A29E" stroke="1.8" />
+      <text class="guide-text">请把药盒放入框内</text>
+    </view>
+  </view>
+  <view class="camera-shutter-area">
+    <button class="shutter" bindtap="simulatePhoto"></button>
+  </view>
+  <text class="shutter-hint">点击大圆按钮拍照</text>
+</view>
+
+<!-- Step 2: Recognition result -->
+<view wx:elif="{{step === 2}}" class="page-recognize">
+  <view class="top-bar">
+    <button class="back-btn" bindtap="goBack">
+      <icon name="chevronLeft" size="40" color="#E8924A" stroke="2.5" />
+      <text>重拍</text>
+    </button>
+    <text class="top-title">识别结果</text>
+    <view class="spacer"></view>
+  </view>
+  <view class="recognize-body">
+    <view class="recognize-card">
+      <view class="photo-placeholder">
+        <icon name="cameraLg" size="80" color="#A8A29E" stroke="1.8" />
+        <text class="photo-label">药盒照片</text>
+      </view>
+      <view class="recognize-badge">
+        <icon name="sparkle" size="40" color="#E8924A" stroke="1.8" />
+        <text class="badge-text">已识别到</text>
+      </view>
+      <text class="med-name">{{recognizedName}}</text>
+      <text class="confirm-question">是这个药吗？</text>
+    </view>
+  </view>
+  <view class="bottom-actions">
+    <button class="primary-btn" bindtap="goToStep3">是的，下一步</button>
+    <button class="secondary-btn" bindtap="sendToChild">不太对，发给子女确认</button>
+  </view>
+</view>
+
+<!-- Step 3: Select time -->
+<view wx:elif="{{step === 3}}" class="page-times">
+  <view class="top-bar">
+    <button class="back-btn" bindtap="goBack">
+      <icon name="chevronLeft" size="40" color="#E8924A" stroke="2.5" />
+      <text>返回</text>
+    </button>
+    <text class="top-title">什么时间吃？</text>
+    <view class="spacer"></view>
+  </view>
+  <view class="times-body">
+    <text class="times-hint">您每天什么时候吃这个药？（可多选）</text>
+    <view class="time-list">
+      <button wx:for="{{allTimes}}" wx:for-item="t" wx:key="*this"
+        class="time-option {{chosenTimes.indexOf(t) !== -1 ? 'selected' : ''}}"
+        data-time="{{t}}" bindtap="toggleTime">
+        <text>{{t}}</text>
+        <icon wx:if="{{chosenTimes.indexOf(t) !== -1}}" name="check" size="56" color="#FFFFFF" stroke="3" />
+      </button>
+    </view>
+  </view>
+  <view class="bottom-bar">
+    <button class="primary-btn {{chosenTimes.length > 0 ? '' : 'disabled'}}"
+      disabled="{{chosenTimes.length === 0}}" bindtap="goToStep4">完成</button>
+  </view>
+</view>
+
+<!-- Step 4: Success -->
+<view wx:elif="{{step === 4}}" class="page-success">
+  <view class="success-content">
+    <view class="success-circle anim-pop">
+      <icon name="check" size="112" color="#FFFFFF" stroke="3" />
+    </view>
+    <text class="success-title">已发送给子女</text>
+    <text class="success-desc">我们已把药盒照片和服药时间发给您的子女，让他们补充剂量等信息，稍后会自动开始提醒您</text>
+    <view class="summary-card">
+      <view class="summary-row">
+        <text class="summary-label">药品</text>
+        <text class="summary-value">{{recognizedName || '待识别'}}</text>
+      </view>
+      <view class="summary-row">
+        <text class="summary-label">服药时间</text>
+        <text class="summary-value">{{chosenTimes.join('、')}}</text>
+      </view>
+    </view>
+    <button class="primary-btn" bindtap="finish">返回药品列表</button>
+  </view>
+</view>

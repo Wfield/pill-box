@@ -1,0 +1,1 @@
+<canvas canvas-id="lineTrendCanvas" class="chart-canvas" style="width: {{data.canvasWidth}}px; height: {{height * 2}}px;"></canvas>

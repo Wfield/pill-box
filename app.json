@@ -1,0 +1,27 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/elderly/home/home",
+    "pages/elderly/meds/meds",
+    "pages/elderly/photo-add/photo-add",
+    "pages/elderly/reminder/reminder",
+    "pages/child/overview/overview",
+    "pages/child/elder-detail/elder-detail",
+    "pages/child/bind-flow/bind-flow",
+    "pages/child/add-med/add-med"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#FDFBF7",
+    "navigationBarTitleText": "智能药盒",
+    "navigationBarTextStyle": "black",
+    "navigationStyle": "custom",
+    "backgroundColor": "#EFE7DA",
+    "backgroundTextStyle": "dark"
+  },
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "style": "v2",
+  "usingComponents": {
+    "icon": "/components/icon/icon"
+  }
+}

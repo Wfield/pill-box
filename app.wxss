@@ -1,0 +1,61 @@
+@import './styles/variables.wxss';
+@import './styles/animations.wxss';
+
+page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #EFE7DA;
+  color: #44403C;
+  font-size: 28rpx;
+  line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+view,
+scroll-view,
+swiper,
+button,
+text,
+input,
+textarea {
+  box-sizing: border-box;
+}
+
+button {
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  line-height: 1.5;
+}
+
+button::after {
+  content: none;
+  border: none;
+}
+
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 132rpx;
+  height: calc(132rpx + constant(safe-area-inset-bottom));
+  height: calc(132rpx + env(safe-area-inset-bottom));
+  min-height: 132rpx;
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+  background: rgba(253, 251, 247, 0.98);
+  border-top: 2rpx solid #F3EBDD;
+  box-shadow: 0 -8rpx 24rpx rgba(41, 37, 36, 0.06);
+  display: flex;
+  align-items: flex-start;
+  z-index: 100;
+}
+
+.with-bottom-nav {
+  padding-bottom: 172rpx;
+  padding-bottom: calc(172rpx + constant(safe-area-inset-bottom));
+  padding-bottom: calc(172rpx + env(safe-area-inset-bottom));
+}

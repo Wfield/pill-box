@@ -1,0 +1,87 @@
+.card-container {
+  position: relative;
+  border-radius: 28rpx;
+  padding: 40rpx;
+  background-color: #E8924A;
+  color: #FFFFFF;
+  overflow: hidden;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 10rpx;
+  height: 18rpx;
+  border-radius: 4rpx;
+  top: 0;
+  animation: confettiFall 1.4s ease-in forwards;
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24rpx;
+  margin-bottom: 32rpx;
+  margin-top: 8rpx;
+}
+
+.time-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.time-text {
+  font-size: 60rpx;
+  font-weight: 700;
+  margin-bottom: 8rpx;
+}
+
+.med-info {
+  font-size: 32rpx;
+  line-height: 1.35;
+  display: block;
+}
+
+.note-text {
+  text-align: right;
+  font-size: 26rpx;
+  opacity: 0.9;
+  flex-shrink: 0;
+  max-width: 180rpx;
+}
+
+.take-btn {
+  width: 100%;
+  min-height: 104rpx;
+  padding: 28rpx 32rpx;
+  font-size: 36rpx;
+  font-weight: 700;
+  border-radius: 28rpx;
+  transition: background-color 0.3s, color 0.3s;
+  line-height: 1.5;
+}
+
+.btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+}
+
+.take-btn.ready {
+  background-color: #FFFFFF;
+  color: #D97D38;
+}
+
+.take-btn.done {
+  background-color: #22C55E;
+  color: #FFFFFF;
+}
+
+.anim-pop {
+  animation: popIn 400ms ease-out forwards;
+  display: inline-block;
+}

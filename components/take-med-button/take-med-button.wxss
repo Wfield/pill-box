@@ -1,0 +1,46 @@
+.take-btn {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  padding: 28rpx;
+  font-size: 36rpx;
+  font-weight: 700;
+  border-radius: 24rpx;
+  transition: background-color 0.3s, color 0.3s;
+  line-height: 1.5;
+}
+
+.btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+}
+
+.take-btn.ready {
+  background-color: #E8924A;
+  color: #FFFFFF;
+}
+
+.take-btn.done {
+  background-color: #22C55E;
+  color: #FFFFFF;
+}
+
+.take-btn.large {
+  padding: 40rpx;
+  font-size: 48rpx;
+}
+
+.ripple-bg {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.25);
+  animation: ripple 600ms ease-out;
+  border-radius: 50%;
+}
+
+.anim-pop {
+  animation: popIn 400ms ease-out forwards;
+  display: inline-block;
+}

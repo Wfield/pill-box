@@ -1,0 +1,57 @@
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes draw {
+  from { stroke-dashoffset: 60; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes ripple {
+  0% { transform: scale(0); opacity: 0.5; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes pulseSoft {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes confettiFall {
+  0% { transform: translate(0, -20rpx) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--tx), 640rpx) rotate(var(--rot)); opacity: 0; }
+}
+
+@keyframes streakPop {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+@keyframes slideUp {
+  0% { transform: translateY(100%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.anim-pop {
+  animation: popIn 400ms ease-out forwards;
+}
+
+.anim-pulse {
+  animation: pulseSoft 1.6s ease-in-out infinite;
+}
+
+.anim-slide-up {
+  animation: slideUp 300ms ease-out forwards;
+}
+
+.anim-fade-in {
+  animation: fadeIn 300ms ease-out forwards;
+}

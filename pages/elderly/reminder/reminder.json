@@ -1,0 +1,6 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "take-med-button": "/components/take-med-button/take-med-button"
+  }
+}

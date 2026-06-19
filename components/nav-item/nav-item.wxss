@@ -1,0 +1,51 @@
+:host {
+  flex: 1;
+  min-width: 0;
+  display: block;
+}
+
+.nav-item {
+  flex: 1;
+  min-width: 0;
+  height: 132rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  padding: 12rpx 0 10rpx;
+  color: #A8A29E;
+  transition: color 0.2s;
+}
+
+.nav-item.active {
+  color: #E8924A;
+}
+
+.nav-icon-wrap {
+  width: 84rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999rpx;
+}
+
+.nav-icon-wrap.active {
+  background: rgba(232, 146, 74, 0.14);
+}
+
+.nav-label {
+  width: 100%;
+  padding: 0 8rpx;
+  font-size: 26rpx;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-item.active .nav-label {
+  font-weight: 700;
+}

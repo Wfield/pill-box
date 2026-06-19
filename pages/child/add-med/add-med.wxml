@@ -1,0 +1,52 @@
+<view class="page-container">
+  <view class="top-bar">
+    <button class="cancel-btn" bindtap="cancel">取消</button>
+    <text class="page-title">添加药品</text>
+    <button class="save-btn" bindtap="save">保存</button>
+  </view>
+
+  <scroll-view class="scroll-area" scroll-y>
+    <view class="form-card">
+      <view class="photo-upload" bindtap="takePhoto">
+        <icon name="camera" size="64" color="#A8A29E" stroke="1.8" />
+        <text>拍照识别药品</text>
+      </view>
+
+      <view class="form-group">
+        <text class="form-label">药品名称 *</text>
+        <input class="form-input" placeholder="输入或拍照识别" value="{{medName}}" bindinput="onNameInput" />
+      </view>
+
+      <view class="form-row">
+        <view class="form-group half">
+          <text class="form-label">每次剂量 *</text>
+          <view class="dose-input">
+            <input class="form-input" placeholder="1" value="{{dose}}" bindinput="onDoseInput" style="flex:1;border:none;" />
+            <picker value="0" range="{{doseUnits}}" bindchange="onDoseUnitChange">
+              <text class="picker-trigger">{{doseUnit}}</text>
+            </picker>
+          </view>
+        </view>
+        <view class="form-group half">
+          <text class="form-label">包装数量</text>
+          <input class="form-input" placeholder="如 30 片/盒" value="{{packageCount}}" bindinput="onPackageInput" />
+        </view>
+      </view>
+
+      <view class="form-group">
+        <text class="form-label">服用时间 *</text>
+        <view class="time-tags">
+          <text wx:for="{{times}}" wx:for-item="t" wx:key="*this" class="time-tag" data-time="{{t}}" bindtap="removeTime">
+            {{t}} ×
+          </text>
+          <button class="add-time-btn" bindtap="addTime">+ 添加时间</button>
+        </view>
+      </view>
+
+      <view class="form-group">
+        <text class="form-label">备注</text>
+        <input class="form-input" placeholder="餐前/餐后/特殊提示" value="{{note}}" bindinput="onNoteInput" />
+      </view>
+    </view>
+  </scroll-view>
+</view>

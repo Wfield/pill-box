@@ -1,0 +1,85 @@
+.page-reminder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: rgba(240, 168, 104, 0.12);
+  padding: 48rpx;
+}
+
+.reminder-icon {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  background: #E8924A;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 48rpx;
+}
+
+.pill-icon {
+  font-size: 80rpx;
+}
+
+.reminder-title {
+  font-size: 52rpx;
+  font-weight: 700;
+  color: #292524;
+  margin-bottom: 40rpx;
+}
+
+.med-info-card {
+  background: #FDFBF7;
+  border-radius: 28rpx;
+  padding: 48rpx;
+  width: 100%;
+  max-width: 560rpx;
+  text-align: center;
+  margin-bottom: 48rpx;
+  border: 2rpx solid #F3EBDD;
+}
+
+.med-name {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #292524;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.med-dose {
+  font-size: 36rpx;
+  color: #78716C;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.med-note {
+  font-size: 32rpx;
+  color: #D97D38;
+  font-weight: 500;
+  display: block;
+}
+
+.reminder-actions {
+  width: 100%;
+  max-width: 560rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.later-btn {
+  width: 100%;
+  padding: 36rpx;
+  background: #F3EBDD;
+  color: #44403C;
+  font-size: 40rpx;
+  font-weight: 700;
+  border-radius: 28rpx;
+  text-align: center;
+  line-height: 1.5;
+}

@@ -1,0 +1,139 @@
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #FAF6EE;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 40rpx;
+  padding-top: 80rpx;
+  background: #FDFBF7;
+  border-bottom: 2rpx solid #F3EBDD;
+}
+
+.cancel-btn {
+  font-size: 28rpx;
+  color: #D97D38;
+  background: none;
+  border: none;
+  padding: 0;
+  line-height: 1.5;
+}
+
+.page-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #292524;
+}
+
+.save-btn {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #D97D38;
+  background: none;
+  border: none;
+  padding: 0;
+  line-height: 1.5;
+}
+
+.scroll-area {
+  flex: 1;
+  padding: 32rpx;
+}
+
+.form-card {
+  background: #FDFBF7;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  border: 2rpx solid #F3EBDD;
+}
+
+.photo-upload {
+  border: 4rpx dashed #D6D3D1;
+  border-radius: 20rpx;
+  padding: 60rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 24rpx;
+  color: #A8A29E;
+  margin-bottom: 32rpx;
+}
+
+.form-group {
+  margin-bottom: 24rpx;
+}
+
+.form-label {
+  font-size: 24rpx;
+  color: #78716C;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.form-input {
+  width: 100%;
+  padding: 16rpx;
+  border: 2rpx solid #D6D3D1;
+  border-radius: 16rpx;
+  background: #FFFFFF;
+  font-size: 28rpx;
+  color: #292524;
+}
+
+.form-row {
+  display: flex;
+  gap: 20rpx;
+}
+
+.form-group.half {
+  flex: 1;
+}
+
+.dose-input {
+  display: flex;
+  align-items: center;
+  border: 2rpx solid #D6D3D1;
+  border-radius: 16rpx;
+  overflow: hidden;
+  background: #FFFFFF;
+}
+
+.picker-trigger {
+  padding: 16rpx 20rpx;
+  background: #FAF6EE;
+  border-left: 2rpx solid #D6D3D1;
+  font-size: 24rpx;
+  color: #44403C;
+  display: block;
+}
+
+.time-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  align-items: center;
+}
+
+.time-tag {
+  padding: 12rpx 24rpx;
+  background: rgba(232, 146, 74, 0.2);
+  color: #D97D38;
+  border-radius: 9999rpx;
+  font-size: 24rpx;
+}
+
+.add-time-btn {
+  padding: 12rpx 24rpx;
+  border: 4rpx dashed #D6D3D1;
+  border-radius: 9999rpx;
+  font-size: 24rpx;
+  color: #A8A29E;
+  background: none;
+  line-height: 1.5;
+}

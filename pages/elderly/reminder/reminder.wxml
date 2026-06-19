@@ -1,0 +1,15 @@
+<view class="page-reminder">
+  <view class="reminder-icon anim-pulse">
+    <icon name="pill" size="88" color="#FFFFFF" stroke="1.8" />
+  </view>
+  <text class="reminder-title">该吃药了</text>
+  <view class="med-info-card">
+    <text class="med-name">{{nextMed.name}}</text>
+    <text class="med-dose">{{nextMed.dose}}</text>
+    <text class="med-note">{{nextMed.note}}</text>
+  </view>
+  <view class="reminder-actions">
+    <take-med-button large="{{true}}" bind:take="handleTake" />
+    <button class="later-btn" bindtap="remindLater">稍后提醒</button>
+  </view>
+</view>

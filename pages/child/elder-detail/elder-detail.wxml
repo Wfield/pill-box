@@ -1,0 +1,315 @@
+<!-- Add Med Modal -->
+<view wx:if="{{showAddMedModal}}" class="modal-overlay">
+  <view class="modal-content">
+    <view class="modal-header">
+      <button class="modal-cancel" bindtap="hideAddMed">取消</button>
+      <text class="modal-title">添加药品</text>
+      <button class="modal-save" bindtap="hideAddMed">保存</button>
+    </view>
+    <view class="modal-body">
+      <view class="form-section">
+        <view class="photo-upload">
+          <icon name="camera" size="64" color="#A8A29E" stroke="1.8" />
+          <text>拍照识别药品</text>
+        </view>
+        <view class="form-group">
+          <text class="form-label">药品名称 *</text>
+          <input class="form-input" placeholder="输入或拍照识别" />
+        </view>
+        <view class="form-row">
+          <view class="form-group half">
+            <text class="form-label">每次剂量 *</text>
+            <view class="dose-input">
+              <input class="form-input" placeholder="1" style="flex:1;" />
+              <picker value="0" range="{{['片','粒','ml']}}">
+                <text class="picker-trigger">片</text>
+              </picker>
+            </view>
+          </view>
+          <view class="form-group half">
+            <text class="form-label">包装数量</text>
+            <input class="form-input" placeholder="如 30 片/盒" />
+          </view>
+        </view>
+        <view class="form-group">
+          <text class="form-label">服用时间 *</text>
+          <view class="time-tags">
+            <text class="time-tag">08:00 ×</text>
+            <button class="add-time-btn">+ 添加时间</button>
+          </view>
+        </view>
+        <view class="form-group">
+          <text class="form-label">备注</text>
+          <input class="form-input" placeholder="餐前/餐后/特殊提示" />
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- Main Page -->
+<view class="page-container">
+  <view class="top-bar">
+    <button class="back-btn" bindtap="goBack">
+      <icon name="chevronLeft" size="48" color="#78716C" stroke="2.5" />
+    </button>
+    <text class="page-title">{{pageTitle}}</text>
+  </view>
+
+  <!-- Tab: Home -->
+  <view wx:if="{{currentTab === 'elderHome'}}" class="tab-content">
+    <scroll-view class="scroll-area" scroll-y>
+      <view class="notification-card">
+        <view class="notification-header">
+          <icon name="bell" size="32" color="#E8924A" stroke="1.8" />
+          <text class="notification-title">通知</text>
+        </view>
+        <view class="notification-body">
+          <view wx:for="{{parentMeds}}" wx:for-item="m" wx:key="id">
+            <view wx:if="{{m.remaining <= 10}}" class="notification-item">
+              <view class="notif-icon warn">
+                <icon name="warn" size="32" color="#E8924A" stroke="1.8" />
+              </view>
+              <view class="notif-text">
+                <text class="notif-title-text">药品余量不足</text>
+                <text class="notif-desc">{{m.name}}：剩余 {{m.remaining}} 片（约 {{m.remaining}} 天）</text>
+              </view>
+            </view>
+          </view>
+          <view class="notification-item">
+            <view class="notif-icon photo">
+              <icon name="cameraLg" size="32" color="#E8924A" stroke="1.8" />
+            </view>
+            <view class="notif-text">
+              <text class="notif-title-text">妈妈拍了一个新药 · 待录入</text>
+              <text class="notif-desc">服药时间：08:00、20:00 · 请补充剂量信息</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="progress-card">
+        <view class="progress-header">
+          <text class="progress-title">今日用药</text>
+          <text class="progress-count">{{takenCount}}/{{totalCount}} 已完成</text>
+        </view>
+        <view class="progress-bar-track">
+          <view class="progress-bar-fill" style="width: {{progressWidth}}%;"></view>
+        </view>
+        <view wx:for="{{parentMeds}}" wx:for-item="m" wx:key="id" class="med-status-row">
+          <view class="med-status-left">
+            <view class="status-dot {{m.status}}"></view>
+            <text class="med-status-name">{{m.times[0]}} {{m.name}}</text>
+          </view>
+          <text class="med-status-tag {{m.status}}">{{m.status === 'taken' ? '已服' : m.status === 'missed' ? '漏服' : '待服'}}</text>
+        </view>
+      </view>
+
+      <view class="bp-summary-card">
+        <view class="bp-summary-header">
+          <text class="bp-summary-title">最新血压 / 心率</text>
+          <text class="bp-summary-time">今日 {{elder.bp.time}}</text>
+        </view>
+        <view class="bp-summary-grid">
+          <view class="bp-summary-item">
+            <text class="bp-summary-label">血压 mmHg</text>
+            <text class="bp-summary-value {{elder.bp.sys >= 140 || elder.bp.dia >= 90 ? 'abnormal' : ''}}">{{elder.bp.sys}}/{{elder.bp.dia}}</text>
+          </view>
+          <view class="bp-summary-item">
+            <text class="bp-summary-label">心率 次/分</text>
+            <text class="bp-summary-value {{elder.bp.hr < 60 || elder.bp.hr > 100 ? 'abnormal' : ''}}">{{elder.bp.hr}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- Tab: Meds -->
+  <view wx:elif="{{currentTab === 'elderMeds'}}" class="tab-content">
+    <view class="meds-sub-tabs">
+      <button class="sub-tab {{medsSubTab === 'calendar' ? 'active' : ''}}" data-sub="calendar" bindtap="switchMedsSubTab">用药日历</button>
+      <button class="sub-tab {{medsSubTab === 'manage' ? 'active' : ''}}" data-sub="manage" bindtap="switchMedsSubTab">药品管理</button>
+    </view>
+
+    <view wx:if="{{medsSubTab === 'calendar'}}" class="tab-content">
+      <view class="calendar-controls">
+        <view class="month-nav">
+          <button class="month-arrow" data-delta="1" bindtap="shiftMonth">
+            <icon name="chevronLeft" size="32" color="#57534E" stroke="2.5" />
+          </button>
+          <text class="month-label">{{monthLabel}}</text>
+          <button class="month-arrow {{monthOffset === 0 ? 'disabled' : ''}}" data-delta="-1" bindtap="shiftMonth">
+            <icon name="chevron" size="32" color="{{monthOffset === 0 ? '#D6D3D1' : '#57534E'}}" stroke="2.5" />
+          </button>
+        </view>
+        <picker value="{{medFilterIdx}}" range="{{filterNames}}" bindchange="changeMedFilter">
+          <text class="filter-trigger">{{filterNames[medFilterIdx]}} ▼</text>
+        </picker>
+      </view>
+
+      <scroll-view class="scroll-area" scroll-y>
+        <view class="month-summary">
+          <view class="summary-stat">
+            <text class="summary-num">{{monthRate}}<text class="summary-percent">%</text></text>
+            <text class="summary-label2">按时率</text>
+          </view>
+          <view class="summary-divider"></view>
+          <view class="summary-stat">
+            <text class="summary-num">{{monthMissed}}</text>
+            <text class="summary-label2">漏服次数</text>
+          </view>
+          <view class="summary-divider"></view>
+          <view class="summary-stat">
+            <text class="summary-num">{{monthFullDays}}</text>
+            <text class="summary-label2">全勤天数</text>
+          </view>
+        </view>
+
+        <view class="calendar">
+          <view class="weekday-header">
+            <text wx:for="{{weekdays}}" wx:for-item="w" wx:key="*this" class="weekday {{w === '日' || w === '六' ? 'weekend' : ''}}">{{w}}</text>
+          </view>
+          <view class="calendar-grid">
+            <view wx:for="{{calendarDays}}" wx:for-item="cell" wx:for-index="i" wx:key="i">
+              <view wx:if="{{cell === null}}" class="calendar-cell empty"></view>
+              <view wx:else class="calendar-cell {{cell.agg}} {{cell.isToday ? 'today' : ''}} {{selectedDay === cell.day ? 'selected' : ''}}" data-day="{{cell.day}}" bindtap="selectDay">
+                <text class="cell-day">{{cell.day}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="legend-row">
+          <view class="legend-item"><view class="legend-box taken"></view><text>按时</text></view>
+          <view class="legend-item"><view class="legend-box late"></view><text>补服</text></view>
+          <view class="legend-item"><view class="legend-box missed"></view><text>漏服</text></view>
+          <view class="legend-item"><view class="legend-box pending"></view><text>待服</text></view>
+        </view>
+
+        <view wx:if="{{selectedDay}}" class="day-detail">
+          <view class="day-detail-header">
+            <view>
+              <text class="day-detail-date">{{selectedDay}}日</text>
+              <text class="day-detail-count">{{dayTimeline.length}} 次服药</text>
+            </view>
+            <button class="day-detail-close" bindtap="selectDay" data-day="{{selectedDay}}">收起</button>
+          </view>
+          <view wx:if="{{dayTimeline.length > 0}}">
+            <view wx:for="{{dayTimeline}}" wx:for-item="t" wx:key="*this" class="timeline-item">
+              <text class="timeline-time">{{t.time}}</text>
+              <view class="timeline-info">
+                <text class="timeline-name">{{t.name}}</text>
+                <text class="timeline-dose">{{t.dose}}</text>
+              </view>
+              <text class="timeline-tag {{t.status}}">{{t.status === 'taken' ? '按时' : t.status === 'late' ? '补服' : t.status === 'missed' ? '漏服' : '待服'}}</text>
+            </view>
+          </view>
+          <view wx:else>
+            <text class="no-data-text">当天无服药任务</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view wx:elif="{{medsSubTab === 'manage'}}" class="tab-content">
+      <scroll-view class="scroll-area" scroll-y>
+        <button class="add-med-btn" bindtap="showAddMed">
+          <view class="add-med-btn-content">
+            <icon name="plus" size="40" color="#E8924A" stroke="2.5" />
+            <text>添加新药品</text>
+          </view>
+        </button>
+
+        <view wx:for="{{parentMeds}}" wx:for-item="m" wx:key="id" class="manage-med-card {{m.remaining <= 10 ? 'low-stock' : ''}}">
+          <view class="manage-med-top">
+            <view class="manage-med-left">
+              <view class="manage-med-icon {{m.remaining <= 10 ? 'warn-bg' : ''}}">
+                <icon name="pill" size="56" color="#E8924A" stroke="1.8" />
+              </view>
+              <view class="manage-med-info">
+                <text class="manage-med-name">{{m.name}}</text>
+                <text class="manage-med-dose">每次 {{m.dose}} · {{m.note}}</text>
+                <text class="manage-med-time">每天 {{m.times[0]}}</text>
+              </view>
+            </view>
+            <button class="edit-btn" data-id="{{m.id}}" bindtap="startEditMed">
+              <icon name="edit" size="40" color="#78716C" stroke="1.8" />
+            </button>
+          </view>
+          <view class="manage-med-bottom">
+            <view class="{{m.remaining <= 10 ? 'low-stock-text' : 'stock-text'}}">
+              <icon wx:if="{{m.remaining <= 10}}" name="warn" size="28" color="#E11D48" stroke="1.8" />
+              <text>{{m.remaining <= 10 ? '待补药 · 剩余 ' + m.remaining + ' 片（约 ' + m.remaining + ' 天）' : '余量 ' + m.remaining + ' 天'}}</text>
+            </view>
+            <button class="restock-btn {{m.remaining <= 10 ? 'primary' : 'secondary'}}">已补药</button>
+          </view>
+        </view>
+
+        <text class="tab-hint">想看用药执行情况？切到「用药日历」</text>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- Tab: BP -->
+  <view wx:elif="{{currentTab === 'elderBp'}}" class="tab-content">
+    <view class="period-bar">
+      <view class="period-tabs">
+        <button wx:for="{{periodKeys}}" wx:for-item="p" wx:key="*this" class="period-tab {{bpPeriod === p ? 'active' : ''}}" data-period="{{p}}" bindtap="switchBpPeriod">{{p === 'day' ? '天' : p === 'week' ? '周' : p === 'month' ? '月' : '年'}}</button>
+      </view>
+      <view class="period-nav">
+        <button class="nav-arrow" data-delta="1" bindtap="shiftBpPeriod">
+          <icon name="chevronLeft" size="32" color="#57534E" stroke="2.5" />
+        </button>
+        <text class="period-label">{{periodLabel}}</text>
+        <button class="nav-arrow {{bpPeriodOffset === 0 ? 'disabled' : ''}}" data-delta="-1" bindtap="shiftBpPeriod">
+          <icon name="chevron" size="32" color="{{bpPeriodOffset === 0 ? '#D6D3D1' : '#57534E'}}" stroke="2.5" />
+        </button>
+      </view>
+    </view>
+
+    <scroll-view class="scroll-area" scroll-y>
+      <view class="chart-section">
+        <view class="chart-card">
+          <view class="chart-header">
+            <text class="chart-title">血压</text>
+            <view class="chart-legend">
+              <view class="legend-item"><view class="legend-dot" style="background:#E8924A;"></view><text>高压</text></view>
+              <view class="legend-item"><view class="legend-dot" style="background:#7C9CB5;"></view><text>低压</text></view>
+            </view>
+          </view>
+          <line-trend data="{{bpData}}" lines="{{bpLines}}" height="150" warnLines="{{bpWarnLines}}" />
+        </view>
+        <view class="chart-card">
+          <view class="chart-header">
+            <text class="chart-title">心率</text>
+            <view class="chart-legend">
+              <view class="legend-item"><view class="legend-dot" style="background:#C99A8C;"></view><text>心率</text></view>
+              <view class="legend-item"><view class="legend-dot" style="background:#A8A29E;"></view><text>正常 60-100</text></view>
+            </view>
+          </view>
+          <line-trend data="{{bpData}}" lines="{{hrLines}}" height="130" warnLines="{{hrWarnLines}}" />
+        </view>
+        <text class="swipe-hint">← 左右滑动趋势图查看其他时段 →</text>
+      </view>
+
+      <view class="detail-records">
+        <text class="detail-title">详细记录</text>
+        <view wx:for="{{recentRecords}}" wx:for-item="d" wx:key="*this" class="detail-row">
+          <text class="detail-label">{{d.label}}</text>
+          <view class="detail-values">
+            <text class="detail-bp {{d.sys >= 140 || d.dia >= 90 ? 'abnormal' : ''}}">{{d.sys}}/{{d.dia}}</text>
+            <text class="detail-sep"> · </text>
+            <text class="detail-hr {{d.hr < 60 || d.hr > 100 ? 'abnormal' : ''}}">{{d.hr}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- Bottom Nav -->
+  <view class="bottom-nav">
+    <nav-item style="flex:1;min-width:0;display:block;" icon="home" label="首页" active="{{currentTab === 'elderHome'}}" activeColor="#E8924A" bind:tap="switchTab" data-tab="elderHome" />
+    <nav-item style="flex:1;min-width:0;display:block;" icon="pill" label="药品" active="{{currentTab === 'elderMeds'}}" activeColor="#E8924A" bind:tap="switchTab" data-tab="elderMeds" />
+    <nav-item style="flex:1;min-width:0;display:block;" icon="chart" label="血压心率" active="{{currentTab === 'elderBp'}}" activeColor="#E8924A" bind:tap="switchTab" data-tab="elderBp" />
+  </view>
+</view>

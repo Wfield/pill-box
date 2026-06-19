@@ -1,0 +1,102 @@
+<view class="page-container">
+  <view class="header">
+    <view class="header-top">
+      <text class="header-date">今天 06-08 周一</text>
+      <button class="settings-btn">
+        <icon name="gear" size="40" color="#57534E" stroke="1.8" />
+      </button>
+    </view>
+  </view>
+
+  <scroll-view class="scroll-area" scroll-y>
+    <!-- Medication alert notification -->
+    <view wx:if="{{showMedAlert}}" class="alert-card">
+      <view class="alert-header">
+        <icon name="warn" size="40" color="#F43F5E" stroke="1.8" />
+        <text class="alert-title">服药提醒</text>
+        <text class="alert-time">{{medAlerts[0].minutesAgo}}分钟前</text>
+      </view>
+      <view class="alert-body">
+        <view wx:for="{{medAlerts}}" wx:for-item="a" wx:key="id" class="alert-item">
+          <view class="alert-med-icon">
+            <icon name="pill" size="40" color="#F43F5E" stroke="1.8" />
+          </view>
+          <view class="alert-text">
+            <text class="alert-name">{{a.elderName}} {{a.time}} 的药还没吃</text>
+            <text class="alert-med-name">{{a.medName}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="alert-actions">
+        <button class="alert-btn primary" bindtap="sendReminder">
+          <view class="alert-btn-content">
+            <icon name="bell" size="32" color="#FFFFFF" stroke="1.8" />
+            <text>提醒下</text>
+          </view>
+        </button>
+        <button class="alert-btn secondary" bindtap="dismissAlert">我知道了</button>
+      </view>
+    </view>
+
+    <!-- Full attendance congratulations -->
+    <view wx:if="{{showFullAttendance}}" class="congrats-card">
+      <view class="congrats-header">
+        <icon name="sparkle" size="40" color="#FFFFFF" stroke="1.8" />
+        <text class="congrats-title">今日全勤喜报</text>
+      </view>
+      <text class="congrats-desc">{{congratsNames}} 今天按时完成了所有服药 🎉 给个鼓励吧</text>
+      <button class="congrats-btn" bindtap="sendLike">
+        <view class="alert-btn-content">
+          <icon name="thumbUp" size="40" color="#F43F5E" stroke="1.8" />
+          <text>给爸妈点个赞</text>
+        </view>
+      </button>
+    </view>
+
+    <view wx:if="{{likeSent}}" class="like-sent-card">
+      <icon name="check" size="32" color="#D97D38" stroke="2.5" />
+      <text>已发送鼓励，老人会收到提醒</text>
+    </view>
+
+    <!-- Elder cards -->
+    <view wx:for="{{elders}}" wx:for-item="e" wx:key="id" class="elder-card" bindtap="goToElderDetail" data-id="{{e.id}}">
+      <view class="elder-card-header">
+        <view class="elder-info">
+          <view class="elder-avatar">{{e.emoji}}</view>
+          <view class="elder-meta">
+            <text class="elder-name">{{e.name}}</text>
+            <view wx:if="{{e.alerts > 0}}" class="elder-status warn">
+              <icon name="warn" size="24" color="#F43F5E" stroke="1.8" />
+              <text>{{e.alerts}} 条通知</text>
+            </view>
+            <text wx:else class="elder-status ok">一切正常</text>
+          </view>
+        </view>
+        <icon name="chevron" size="40" color="#D6D3D1" stroke="2" />
+      </view>
+      <view class="elder-stats">
+        <view class="stat-box">
+          <text class="stat-label">今日用药</text>
+          <view class="stat-value">
+            <text class="stat-num {{e.today.allDone ? 'done' : ''}}">{{e.today.taken}}/{{e.today.total}}</text>
+            <text wx:if="{{e.today.allDone}}" class="stat-badge">全勤</text>
+          </view>
+        </view>
+        <view class="stat-box">
+          <text class="stat-label">血压 / 心率</text>
+          <text class="stat-num {{e.bp.sys >= 140 ? 'abnormal' : ''}}">{{e.bp.sys}}/{{e.bp.dia}} · {{e.bp.hr}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Bind new elder -->
+    <button class="bind-btn" bindtap="goToBindFlow">
+      <view class="bind-btn-content">
+        <icon name="plus" size="40" color="#A8A29E" stroke="2.5" />
+        <text>绑定新的老人</text>
+      </view>
+    </button>
+
+    <view style="height: 40rpx;"></view>
+  </scroll-view>
+</view>

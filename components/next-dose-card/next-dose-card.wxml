@@ -1,0 +1,20 @@
+<view class="card-container">
+  <view wx:for="{{confetti}}" wx:for-item="p" wx:key="id" class="confetti-piece" style="left: {{p.left}}%; background: {{p.color}}; animation-delay: {{p.delay}};"></view>
+  <view class="card-header">
+    <view class="time-section">
+      <text class="time-text">{{med.time}}</text>
+      <text class="med-info">{{med.name}} · {{med.dose}}</text>
+    </view>
+    <text class="note-text">{{med.note}}</text>
+  </view>
+  <button class="take-btn {{done ? 'done' : 'ready'}}" disabled="{{animating}}" bindtap="handleTake">
+    <view wx:if="{{done}}" class="btn-content anim-pop">
+      <icon name="check" size="56" color="#FFFFFF" stroke="3" />
+      <text>已记录</text>
+    </view>
+    <view wx:else class="btn-content">
+      <icon name="check" size="56" color="#E8924A" stroke="2.5" />
+      <text>我吃了</text>
+    </view>
+  </button>
+</view>

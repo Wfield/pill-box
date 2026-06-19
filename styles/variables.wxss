@@ -1,0 +1,66 @@
+page {
+  /* 颜色系统 */
+  --color-cream-50: #FDFBF7;
+  --color-cream-100: #FAF6EE;
+  --color-cream-200: #F3EBDD;
+  --color-amber2-400: #F0A868;
+  --color-amber2-500: #E8924A;
+  --color-amber2-600: #D97D38;
+  --color-stone-50: #FAFAF9;
+  --color-stone-100: #F5F5F4;
+  --color-stone-200: #E7E5E4;
+  --color-stone-300: #D6D3D1;
+  --color-stone-400: #A8A29E;
+  --color-stone-500: #78716C;
+  --color-stone-600: #57534E;
+  --color-stone-700: #44403C;
+  --color-stone-800: #292524;
+  --color-stone-900: #1C1917;
+  --color-rose-100: #FFE4E6;
+  --color-rose-200: #FECDD3;
+  --color-rose-300: #FDA4AF;
+  --color-rose-400: #FB7185;
+  --color-rose-500: #F43F5E;
+  --color-rose-600: #E11D48;
+  --color-rose-700: #BE123C;
+  --color-green-500: #22C55E;
+  --color-yellow-100: #FEF9C3;
+  --color-yellow-200: #FEF08A;
+  --color-yellow-400: #FACC15;
+  --color-red-50: #FEF2F2;
+  --color-red-200: #FECACA;
+  --color-red-500: #EF4444;
+  --color-red-600: #DC2626;
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+
+  /* 间距 */
+  --spacing-xs: 8rpx;
+  --spacing-sm: 16rpx;
+  --spacing-md: 24rpx;
+  --spacing-lg: 32rpx;
+  --spacing-xl: 40rpx;
+  --spacing-2xl: 48rpx;
+
+  /* 圆角 */
+  --radius-sm: 12rpx;
+  --radius-md: 20rpx;
+  --radius-lg: 28rpx;
+  --radius-xl: 36rpx;
+  --radius-full: 9999rpx;
+
+  /* 阴影 */
+  --shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
+
+  /* 字体 */
+  --font-xs: 22rpx;
+  --font-sm: 26rpx;
+  --font-base: 28rpx;
+  --font-lg: 32rpx;
+  --font-xl: 36rpx;
+  --font-2xl: 44rpx;
+  --font-3xl: 52rpx;
+  --font-4xl: 60rpx;
+}

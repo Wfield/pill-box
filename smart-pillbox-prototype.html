@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>智能药盒 App · 交互原型</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: { 50: '#FDFBF7', 100: '#FAF6EE', 200: '#F3EBDD' },
+            amber2: { 400: '#F0A868', 500: '#E8924A', 600: '#D97D38' },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background:#EFE7DA; }
+    @keyframes popIn { 0% { transform: scale(0); opacity:0 } 60% { transform: scale(1.15); opacity:1 } 100% { transform: scale(1); opacity:1 } }
+    @keyframes draw { from { stroke-dashoffset: 60 } to { stroke-dashoffset: 0 } }
+    @keyframes ripple { 0% { transform: scale(0); opacity:0.5 } 100% { transform: scale(2); opacity:0 } }
+    .anim-pop { animation: popIn 400ms ease-out forwards; }
+    .anim-draw { stroke-dasharray: 60; animation: draw 350ms ease-out forwards; }
+    .anim-ripple { animation: ripple 600ms ease-out; }
+    @keyframes pulseSoft { 0%,100% { transform: scale(1) } 50% { transform: scale(1.05) } }
+    .anim-pulse { animation: pulseSoft 1.6s ease-in-out infinite; }
+    /* 撒花动效 */
+    @keyframes confettiFall {
+      0% { transform: translate(0,-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translate(var(--tx), 320px) rotate(var(--rot)); opacity: 0; }
+    }
+    .confetti-piece { position: absolute; width: 10px; height: 14px; border-radius: 2px; top: 0; animation: confettiFall 1.4s ease-in forwards; }
+    @keyframes streakPop { 0% { transform: scale(1) } 30% { transform: scale(1.18) } 100% { transform: scale(1) } }
+    .streak-num { animation: streakPop 1.2s ease-in-out 1; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    /* ============ SVG 图标库 ============ */
+    const Icon = ({ name, className = "w-6 h-6", stroke = 1.8 }) => {
+      const paths = {
+        home: <><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V21h14V9.5" /></>,
+        heart: <path d="M12 21s-7-4.6-9.3-9C1.2 9 2.6 5.5 6 5.5c2 0 3.2 1.2 4 2.3.8-1.1 2-2.3 4-2.3 3.4 0 4.8 3.5 3.3 6.5C19 16.4 12 21 12 21Z" />,
+        heartFill: <path d="M12 21s-7-4.6-9.3-9C1.2 9 2.6 5.5 6 5.5c2 0 3.2 1.2 4 2.3.8-1.1 2-2.3 4-2.3 3.4 0 4.8 3.5 3.3 6.5C19 16.4 12 21 12 21Z" />,
+        pill: <><rect x="3" y="8" width="18" height="8" rx="4" /><path d="M12 8v8" /></>,
+        phone: <path d="M5 4h3l2 5-2 1.5a11 11 0 0 0 5 5L16 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" />,
+        chart: <><path d="M4 19V5" /><path d="M4 19h16" /><path d="m7 14 3-4 3 2 4-6" /></>,
+        list: <><path d="M8 6h13" /><path d="M8 12h13" /><path d="M8 18h13" /><circle cx="4" cy="6" r="0.8" /><circle cx="4" cy="12" r="0.8" /><circle cx="4" cy="18" r="0.8" /></>,
+        gear: <><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" /></>,
+        camera: <><path d="M4 8h3l1.5-2h7L17 8h3v11H4Z" /><circle cx="12" cy="13" r="3.5" /></>,
+        edit: <><path d="M4 20h4L19 9l-4-4L4 16Z" /><path d="m14 6 4 4" /></>,
+        check: <path d="m5 12 5 5L20 7" />,
+        clock: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
+        bell: <><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z" /><path d="M10 20a2 2 0 0 0 4 0" /></>,
+        plus: <><path d="M12 5v14M5 12h14" /></>,
+        warn: <><path d="M12 3 2 20h20L12 3Z" /><path d="M12 10v4M12 17v.5" /></>,
+        user: <><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-6 8-6s8 2 8 6" /></>,
+        chevron: <path d="m9 6 6 6-6 6" />,
+        chevronLeft: <path d="m15 6-6 6 6 6" />,
+        flame: <path d="M12 3c1 4 4 5 4 9a4 4 0 0 1-8 0c0-2 1-3 1-5 1 1 1 2 3 1Z" />,
+        thumbUp: <><path d="M7 11v9H4v-9Z" /><path d="M7 11h7l3-7c2 0 3 1 3 3l-2 5h2a2 2 0 0 1 0 4h-2l-1 4H7" /></>,
+        cameraLg: <><path d="M4 8h3l1.5-2h7L17 8h3v11H4Z" /><circle cx="12" cy="13" r="3.5" /></>,
+        sparkle: <><path d="M12 4v3M12 17v3M4 12h3M17 12h3M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2" /></>,
+        send: <><path d="M22 2 11 13" /><path d="M22 2 15 22l-4-9-9-4 20-7Z" /></>,
+      };
+      return (
+        <svg viewBox="0 0 24 24" fill={name === 'heartFill' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={stroke}
+          strokeLinecap="round" strokeLinejoin="round" className={className}>
+          {paths[name]}
+        </svg>
+      );
+    };
+
+    const NavItem = ({ icon, label, active, activeColor, onClick }) => (
+      <button onClick={onClick} className={`flex-1 py-3 flex flex-col items-center gap-0.5 cursor-pointer transition ${active ? activeColor : "text-stone-400 hover:text-stone-500"}`}>
+        <Icon name={icon} className="w-6 h-6" />
+        <span className={`text-xs ${active ? "font-bold" : ""}`}>{label}</span>
+      </button>
+    );
+
+    /* 折线趋势图（支持多警戒线 + 标签） */
+    const LineTrend = ({ data, lines, height = 130, warnLines = [], yMinForce, yMaxForce }) => {
+      const all = data.flatMap(d => lines.map(l => d[l.key]));
+      const wAll = warnLines.map(w => w.value);
+      let max = Math.max(...all, ...wAll);
+      let min = Math.min(...all, ...wAll);
+      if (yMaxForce !== undefined) max = Math.max(max, yMaxForce);
+      if (yMinForce !== undefined) min = Math.min(min, yMinForce);
+      const range = (max - min) || 1;
+      const pad = range * 0.2;
+      const W = 320, H = height, L = 38, R = 12;
+      const x = (i) => data.length <= 1 ? (W+L)/2 : (i / (data.length - 1)) * (W - L - R) + L;
+      const y = (v) => H - 22 - ((v - min + pad) / (range + pad * 2)) * (H - 32);
+      return (
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height }}>
+          {/* 警戒线 */}
+          {warnLines.map((w, wi) => (
+            <g key={wi}>
+              <line x1={L} y1={y(w.value)} x2={W-R} y2={y(w.value)} stroke={w.color} strokeWidth="1" strokeDasharray="4 3" />
+              <text x={L-4} y={y(w.value)+3} fontSize="9" fill={w.color} textAnchor="end" fontWeight="600">{w.value}</text>
+              {w.label && <text x={W-R} y={y(w.value)-3} fontSize="8" fill={w.color} textAnchor="end">{w.label}</text>}
+            </g>
+          ))}
+          {/* 折线 */}
+          {lines.map((l, li) => {
+            const pts = data.map((d, i) => `${x(i)},${y(d[l.key])}`).join(" ");
+            return (
+              <g key={li}>
+                <polyline points={pts} fill="none" stroke={l.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                {data.map((d, i) => {
+                  const isAbnormal = l.abnormalCheck ? l.abnormalCheck(d[l.key]) : false;
+                  return <circle key={i} cx={x(i)} cy={y(d[l.key])} r={isAbnormal ? 3.5 : 2.5} fill={isAbnormal ? "#E11D48" : l.color} />;
+                })}
+              </g>
+            );
+          })}
+          {/* X轴标签 */}
+          {data.map((d, i) => (i % Math.ceil(data.length/6) === 0 || i === data.length-1) && (
+            <text key={i} x={x(i)} y={H-6} fontSize="9" fill="#A8A29E" textAnchor="middle">{d.label}</text>
+          ))}
+        </svg>
+      );
+    };
+
+    const Legend = ({ items }) => (
+      <div className="flex gap-3 flex-wrap">
+        {items.map((it, i) => (
+          <div key={i} className="flex items-center gap-1">
+            <span className="w-3 h-1 rounded-full" style={{ background: it.color }}></span>
+            <span className="text-xs text-stone-500">{it.label}</span>
+          </div>
+        ))}
+      </div>
+    );
+
+    /* 7天迷你执行轨迹 */
+    const MiniHistory = ({ days }) => {
+      const colorMap = { taken: "bg-amber2-500", missed: "bg-rose-400", pending: "bg-stone-300", none: "bg-stone-100" };
+      return (
+        <div className="flex gap-1">
+          {days.map((d, i) => (
+            <div key={i} title={`${d.label}: ${d.status}`} className={`w-4 h-4 rounded-sm ${colorMap[d.status]}`}></div>
+          ))}
+        </div>
+      );
+    };
+
+    /* 服药"我吃了"按钮 - 含动效 */
+    const TakeMedButton = ({ onTake, large }) => {
+      const [animating, setAnimating] = useState(false);
+      const [done, setDone] = useState(false);
+      const handle = () => {
+        setAnimating(true);
+        setTimeout(() => { setDone(true); setTimeout(onTake, 350); }, 100);
+      };
+      const sizeCls = large ? "py-5 text-2xl" : "py-4 text-xl";
+      return (
+        <button onClick={handle} disabled={animating} className={`relative overflow-hidden w-full ${sizeCls} font-bold rounded-xl cursor-pointer transition flex items-center justify-center gap-2 ${done ? "bg-green-500 text-white" : "bg-amber2-500 hover:bg-amber2-600 text-white"}`}>
+          {animating && <span className="absolute inset-0 bg-white/40 anim-ripple rounded-full"></span>}
+          {done ? (
+            <svg viewBox="0 0 24 24" className={large ? "w-9 h-9" : "w-7 h-7"} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <path className="anim-draw" d="m5 12 5 5L20 7" />
+            </svg>
+          ) : (
+            <Icon name="check" className={large ? "w-7 h-7" : "w-6 h-6"} stroke={2.5} />
+          )}
+          {done ? <span className="anim-pop inline-block">已记录</span> : <span>我吃了</span>}
+        </button>
+      );
+    };
+
+    // ==================== 老人端 ====================
+
+    /* 下次服药卡片：含"我吃了"按钮 + 撒花动效（按时版本） */
+    function NextDoseCard({ med, onTake }) {
+      const [animating, setAnimating] = useState(false);
+      const [done, setDone] = useState(false);
+      const [confetti, setConfetti] = useState([]);
+      const handle = () => {
+        setAnimating(true);
+        const colors = ["#E8924A", "#F0A868", "#F472B6", "#FBBF24", "#34D399", "#60A5FA", "#A78BFA"];
+        const pieces = Array.from({ length: 28 }, (_, i) => ({
+          id: i,
+          color: colors[i % colors.length],
+          left: Math.random() * 100,
+          tx: (Math.random() - 0.5) * 200 + "px",
+          rot: (Math.random() * 720 - 360) + "deg",
+          delay: Math.random() * 0.2 + "s",
+        }));
+        setConfetti(pieces);
+        setTimeout(() => { setDone(true); setTimeout(onTake, 900); }, 350);
+      };
+      return (
+        <div className="relative rounded-2xl p-5 bg-amber2-500 text-white shadow-md overflow-hidden">
+          {confetti.length > 0 && (
+            <div className="absolute inset-0 pointer-events-none" style={{ overflow: "visible" }}>
+              {confetti.map(p => (
+                <span key={p.id} className="confetti-piece" style={{
+                  left: p.left + "%", background: p.color,
+                  animationDelay: p.delay,
+                  ["--tx"]: p.tx, ["--rot"]: p.rot
+                }}></span>
+              ))}
+            </div>
+          )}
+          <div className="flex items-end justify-between mb-4 mt-1">
+            <div>
+              <div className="text-4xl font-bold mb-1">{med.time}</div>
+              <div className="text-lg">{med.name} · {med.dose}</div>
+            </div>
+            <div className="text-right text-sm opacity-90">{med.note}</div>
+          </div>
+          <button onClick={handle} disabled={animating} className={`relative w-full py-4 text-xl font-bold rounded-xl cursor-pointer transition flex items-center justify-center gap-2 ${done ? "bg-green-500 text-white" : "bg-white text-amber2-600 hover:bg-cream-50"}`}>
+            {done ? (
+              <>
+                <svg viewBox="0 0 24 24" className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path className="anim-draw" d="m5 12 5 5L20 7" />
+                </svg>
+                <span className="anim-pop inline-block">已记录</span>
+              </>
+            ) : (
+              <>
+                <Icon name="check" className="w-7 h-7" stroke={2.5} />
+                <span>我吃了</span>
+              </>
+            )}
+          </button>
+        </div>
+      );
+    }
+
+    /* 漏服提醒卡片（未按时版本） */
+    function MissedDoseCard({ med, onMakeUp, onConfirmMissed }) {
+      const [madeUp, setMadeUp] = useState(false);
+      const handleMakeUp = () => {
+        setMadeUp(true);
+        setTimeout(onMakeUp, 800);
+      };
+      return (
+        <div className="relative rounded-2xl p-4 bg-stone-100 border border-stone-200 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Icon name="clock" className="w-5 h-5 text-stone-400" />
+            <span className="text-base font-medium text-stone-500">{med.time} 的药</span>
+            <span className="ml-auto text-xs text-stone-500 font-medium px-2 py-0.5 bg-stone-200 rounded-md">超时未服</span>
+          </div>
+          <div className="mb-3">
+            <div className="text-2xl font-bold text-stone-700 mb-1">{med.name}</div>
+            <div className="text-sm text-stone-500">{med.dose} · {med.note}</div>
+          </div>
+          {madeUp ? (
+            <div className="w-full py-3 bg-stone-400 text-white text-lg font-bold rounded-xl flex items-center justify-center gap-2">
+              <Icon name="check" className="w-6 h-6" stroke={2.5} />
+              <span className="anim-pop inline-block">已记录</span>
+            </div>
+          ) : (
+            <button onClick={handleMakeUp} className="w-full py-3 bg-stone-300 hover:bg-stone-400 text-stone-700 hover:text-white text-lg font-bold rounded-xl cursor-pointer transition flex items-center justify-center gap-2">
+              <Icon name="check" className="w-6 h-6" stroke={2.5} />
+              <span>我吃了</span>
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    function ElderlyApp() {
+      const [currentScreen, setCurrentScreen] = useState("home");
+      const [showReminder, setShowReminder] = useState(false);
+      const [bpPeriod, setBpPeriod] = useState("week");
+      const [dayOffset, setDayOffset] = useState(0);
+      const [weekOffset, setWeekOffset] = useState(0);
+      const [monthOffset, setMonthOffset] = useState(0);
+      const [yearOffset, setYearOffset] = useState(0);
+      const [photoStep, setPhotoStep] = useState(0); // 0=未开始 1=拍摄中 2=识别结果 3=选时间 4=完成
+      const [recognizedName, setRecognizedName] = useState("");
+      const [chosenTimes, setChosenTimes] = useState([]);
+      const [encouragementSeen, setEncouragementSeen] = useState(false);
+      const [bpRecordStep, setBpRecordStep] = useState(0); // 0=未开始 1=拍照中 2=识别结果 3=确认保存 | 10=手动输入 11=手动确认
+      const [bpRecordValues, setBpRecordValues] = useState({ sys: "", dia: "", hr: "" });
+
+      const [medications, setMedications] = useState([
+        { id: 1, name: "苯磺酸氨氯地平片", dose: "1片", time: "08:00", status: "missed", note: "餐后服用" },
+        { id: 2, name: "二甲双胍缓释片", dose: "1片", time: "12:00", status: "pending", note: "随餐服用" },
+        { id: 3, name: "阿托伐他汀钙片", dose: "1片", time: "20:00", status: "pending", note: "睡前服用" },
+      ]);
+      const bpRecords = [
+        { date: "06-08 08:30", sys: 138, dia: 85, hr: 72 },
+        { date: "06-07 08:15", sys: 142, dia: 88, hr: 75 },
+        { date: "06-06 08:45", sys: 135, dia: 82, hr: 70 },
+      ];
+      const weekData = [
+        { label: "6/2", sys: 136, dia: 84, hr: 71 },
+        { label: "6/3", sys: 130, dia: 80, hr: 58 },
+        { label: "6/4", sys: 148, dia: 92, hr: 78 },
+        { label: "6/5", sys: 135, dia: 82, hr: 70 },
+        { label: "6/6", sys: 135, dia: 82, hr: 72 },
+        { label: "6/7", sys: 142, dia: 88, hr: 105 },
+        { label: "6/8", sys: 138, dia: 85, hr: 72 },
+      ];
+      const monthData = Array.from({ length: 30 }, (_, i) => ({
+        label: `${5 + Math.floor((i+9)/30)}/${((i+9) % 30) + 1}`,
+        sys: 128 + Math.round(Math.sin(i/3) * 12 + (i % 5)),
+        dia: 78 + Math.round(Math.cos(i/4) * 7 + (i % 3)),
+        hr: 70 + Math.round(Math.sin(i/5) * 18),
+      }));
+
+      const handleTakeMed = (id) => {
+        setMedications(medications.map(m => m.id === id ? { ...m, status: m.status === "missed" ? "late" : "taken" } : m));
+        setShowReminder(false);
+      };
+
+      const nextMed = medications.find(m => m.status === "pending");
+      const streak = 23;
+      // 模拟今日子女鼓励
+      const encouragement = { from: "女儿小丽", text: "妈妈辛苦了！", time: "21:08" };
+
+      const Nav = () => (
+        <div className="bg-cream-50 border-t border-cream-200 flex relative">
+          <NavItem icon="home" label="今日用药" active={currentScreen==="home"} activeColor="text-amber2-600" onClick={() => setCurrentScreen("home")} />
+          <NavItem icon="heart" label="血压" active={currentScreen==="bp"} activeColor="text-amber2-600" onClick={() => setCurrentScreen("bp")} />
+        </div>
+      );
+
+      // 全屏用药提醒弹窗
+      if (showReminder) {
+        if (!nextMed) { setShowReminder(false); return null; }
+        return (
+          <div className="flex flex-col items-center justify-center h-full bg-amber2-400/20 p-6">
+            <div className="w-20 h-20 rounded-full bg-amber2-500 text-white flex items-center justify-center mb-6 anim-pulse">
+              <Icon name="pill" className="w-11 h-11" />
+            </div>
+            <div className="text-3xl font-bold text-stone-800 mb-4">该吃药了</div>
+            <div className="bg-cream-50 rounded-2xl p-6 w-full max-w-sm shadow-lg mb-6 border border-cream-200">
+              <div className="text-2xl font-bold text-center text-stone-900 mb-2">{nextMed.name}</div>
+              <div className="text-xl text-center text-stone-600 mb-2">{nextMed.dose}</div>
+              <div className="text-lg text-center text-amber2-600 font-medium">{nextMed.note}</div>
+            </div>
+            <div className="w-full max-w-sm mb-4"><TakeMedButton large onTake={() => handleTakeMed(nextMed.id)} /></div>
+            <button onClick={() => setShowReminder(false)} className="w-full max-w-sm py-5 bg-cream-200 hover:bg-stone-200 text-stone-700 text-2xl font-bold rounded-2xl cursor-pointer transition">稍后提醒</button>
+          </div>
+        );
+      }
+
+      // 拍照添加 - 多步流程
+      if (photoStep > 0) {
+        const reset = () => { setPhotoStep(0); setRecognizedName(""); setChosenTimes([]); };
+        const allTimes = ["08:00", "12:00", "18:00", "20:00", "22:00"];
+        // Step1：拍摄
+        if (photoStep === 1) {
+          return (
+            <div className="flex flex-col h-full bg-stone-900 text-white">
+              <div className="px-5 py-4 flex items-center justify-between">
+                <button onClick={reset} className="text-white text-lg cursor-pointer">取消</button>
+                <span className="text-lg font-bold">拍摄药盒</span>
+                <span className="w-12"></span>
+              </div>
+              <div className="flex-1 flex items-center justify-center p-6 relative">
+                <div className="absolute inset-x-8 inset-y-20 border-2 border-amber2-400 rounded-2xl flex items-center justify-center">
+                  <div className="text-center text-stone-400">
+                    <Icon name="camera" className="w-14 h-14 mx-auto mb-2" />
+                    <div className="text-base">请把药盒放入框内</div>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 flex justify-center">
+                <button onClick={() => { setRecognizedName("苯磺酸氨氯地平片"); setPhotoStep(2); }} className="w-20 h-20 rounded-full bg-white border-4 border-amber2-400 cursor-pointer hover:scale-105 transition"></button>
+              </div>
+              <div className="text-center text-stone-400 text-sm pb-4">点击大圆按钮拍照</div>
+            </div>
+          );
+        }
+        // Step2：识别结果确认
+        if (photoStep === 2) {
+          return (
+            <div className="flex flex-col h-full bg-cream-100">
+              <div className="bg-cream-50 px-5 py-4 border-b border-cream-200 flex items-center justify-between">
+                <button onClick={() => setPhotoStep(1)} className="text-amber2-600 cursor-pointer flex items-center gap-1"><Icon name="chevronLeft" className="w-5 h-5" stroke={2.5} />重拍</button>
+                <span className="text-lg font-bold text-stone-800">识别结果</span>
+                <span className="w-12"></span>
+              </div>
+              <div className="flex-1 overflow-auto p-5">
+                <div className="bg-cream-50 border border-cream-200 rounded-2xl p-5 mb-5">
+                  <div className="bg-stone-100 rounded-xl h-40 flex items-center justify-center mb-4 border border-stone-200">
+                    <div className="text-center text-stone-400">
+                      <Icon name="cameraLg" className="w-10 h-10 mx-auto mb-1" />
+                      <div className="text-sm">药盒照片</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Icon name="sparkle" className="w-5 h-5 text-amber2-600" />
+                    <span className="text-base text-amber2-600 font-medium">已识别到</span>
+                  </div>
+                  <div className="text-2xl font-bold text-stone-900 mb-2">{recognizedName}</div>
+                  <div className="text-base text-stone-500">是这个药吗？</div>
+                </div>
+                <button onClick={() => setPhotoStep(3)} className="w-full py-5 bg-amber2-500 hover:bg-amber2-600 text-white text-xl font-bold rounded-2xl mb-3 cursor-pointer transition">是的，下一步</button>
+                <button onClick={() => setPhotoStep(3)} className="w-full py-4 bg-cream-200 text-stone-600 text-lg rounded-2xl cursor-pointer hover:bg-stone-200 transition">不太对，发给子女确认</button>
+              </div>
+            </div>
+          );
+        }
+        // Step3：选服药时间
+        if (photoStep === 3) {
+          const toggleTime = (t) => setChosenTimes(chosenTimes.includes(t) ? chosenTimes.filter(x=>x!==t) : [...chosenTimes, t]);
+          return (
+            <div className="flex flex-col h-full bg-cream-100">
+              <div className="bg-cream-50 px-5 py-4 border-b border-cream-200 flex items-center justify-between">
+                <button onClick={() => setPhotoStep(2)} className="text-amber2-600 cursor-pointer flex items-center gap-1"><Icon name="chevronLeft" className="w-5 h-5" stroke={2.5} />返回</button>
+                <span className="text-lg font-bold text-stone-800">什么时间吃？</span>
+                <span className="w-12"></span>
+              </div>
+              <div className="flex-1 overflow-auto p-5">
+                <div className="text-base text-stone-500 mb-4">您每天什么时候吃这个药？（可多选）</div>
+                <div className="space-y-3">
+                  {allTimes.map(t => {
+                    const sel = chosenTimes.includes(t);
+                    return (
+                      <button key={t} onClick={() => toggleTime(t)} className={`w-full py-5 rounded-2xl text-2xl font-bold cursor-pointer transition flex items-center justify-between px-6 border-2 ${sel ? "bg-amber2-500 text-white border-amber2-500" : "bg-cream-50 text-stone-700 border-cream-200"}`}>
+                        <span>{t}</span>
+                        {sel && <Icon name="check" className="w-7 h-7" stroke={3} />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="p-5">
+                <button onClick={() => setPhotoStep(4)} disabled={chosenTimes.length===0} className={`w-full py-5 text-xl font-bold rounded-2xl cursor-pointer transition ${chosenTimes.length>0 ? "bg-amber2-500 hover:bg-amber2-600 text-white" : "bg-stone-200 text-stone-400"}`}>完成</button>
+              </div>
+            </div>
+          );
+        }
+        // Step4：完成
+        if (photoStep === 4) {
+          return (
+            <div className="flex flex-col h-full bg-cream-100 items-center justify-center p-8">
+              <div className="w-24 h-24 rounded-full bg-amber2-500 text-white flex items-center justify-center mb-6 anim-pop">
+                <Icon name="check" className="w-14 h-14" stroke={3} />
+              </div>
+              <div className="text-2xl font-bold text-stone-800 mb-3">已发送给子女</div>
+              <div className="text-base text-stone-500 text-center mb-6 leading-relaxed">
+                我们已把药盒照片和服药时间<br/>发给您的子女，让他们补充剂量等信息<br/>稍后会自动开始提醒您
+              </div>
+              <div className="bg-cream-50 border border-cream-200 rounded-xl p-4 w-full max-w-xs mb-6">
+                <div className="flex justify-between text-sm text-stone-500 mb-2"><span>药品</span><span className="text-stone-800 font-medium">{recognizedName || "待识别"}</span></div>
+                <div className="flex justify-between text-sm text-stone-500"><span>服药时间</span><span className="text-stone-800 font-medium">{chosenTimes.join("、")}</span></div>
+              </div>
+              <button onClick={reset} className="w-full max-w-xs py-4 bg-amber2-500 text-white text-lg font-bold rounded-2xl cursor-pointer hover:bg-amber2-600 transition">返回药品列表</button>
+            </div>
+          );
+        }
+      }
+
+      // 首页
+      if (currentScreen === "home") {
+        const pendingMeds = medications.filter(m => m.status === "pending");
+        const takenMeds = medications.filter(m => m.status === "taken" || m.status === "late");
+        const missedMeds = medications.filter(m => m.status === "missed");
+        // 药盒 SVG 图标
+        const PillboxIcon = ({ className }) => (
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <rect x="8" y="14" width="32" height="28" rx="4" />
+            <path d="M8 22h32" />
+            <path d="M24 22v20" />
+            <rect x="6" y="8" width="36" height="6" rx="3" />
+            <circle cx="16" cy="30" r="2" fill="currentColor" stroke="none" />
+            <circle cx="32" cy="30" r="2" fill="currentColor" stroke="none" />
+            <circle cx="16" cy="38" r="1.5" fill="currentColor" stroke="none" />
+            <circle cx="32" cy="38" r="1.5" fill="currentColor" stroke="none" />
+          </svg>
+        );
+        return (
+          <div className="flex flex-col h-full bg-cream-100">
+            {/* 顶部：连续天数 + 药盒入口 */}
+            <div className="bg-cream-50 px-4 py-3 border-b border-cream-200 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Icon name="flame" className="w-7 h-7 text-amber2-600" />
+                <div className="leading-tight">
+                  <div className="text-xs text-stone-500">连续按时服药</div>
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="streak-num text-3xl font-extrabold text-amber2-600">{streak}</span>
+                    <span className="text-base text-amber2-600 font-bold">天</span>
+                    <span className="text-xs text-stone-400 ml-2">真棒～</span>
+                  </div>
+                </div>
+              </div>
+              {/* 药盒按钮 — 占顶部右侧约一半高度 */}
+              <button onClick={() => setCurrentScreen("meds")} className="flex flex-col items-center justify-center w-20 h-16 rounded-2xl bg-amber2-400/15 hover:bg-amber2-400/25 text-amber2-600 cursor-pointer transition">
+                <PillboxIcon className="w-10 h-10" />
+                <span className="text-[11px] font-bold mt-0.5">我的药盒</span>
+              </button>
+            </div>
+            <div className="flex-1 overflow-auto p-4 space-y-3 pb-20">
+              {/* 今日鼓励卡片（缩小版） */}
+              {!encouragementSeen && (
+                <div className="rounded-xl p-3 bg-gradient-to-br from-rose-300 to-amber2-400 text-white shadow-sm">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-9 h-9 rounded-full bg-white/40 flex items-center justify-center flex-shrink-0 text-lg">👩</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs opacity-90">{encouragement.from} · {encouragement.time}</div>
+                      <div className="text-base font-bold leading-snug">{encouragement.text}</div>
+                    </div>
+                    <button onClick={() => setEncouragementSeen(true)} className="px-3 py-1.5 bg-white text-rose-500 text-sm font-bold rounded-lg cursor-pointer hover:bg-cream-50 transition flex-shrink-0">好的</button>
+                  </div>
+                </div>
+              )}
+
+              {/* 漏服提醒卡片（未按时版本） — 出现在下次服药前 */}
+              {missedMeds.map((med) => (
+                <MissedDoseCard key={med.id} med={med} onMakeUp={() => handleTakeMed(med.id)} onConfirmMissed={() => handleTakeMed(med.id)} />
+              ))}
+
+              {/* 第一卡片：下次服药提醒（按时版本，含我吃了 + 撒花） */}
+              {nextMed ? (
+                <NextDoseCard med={nextMed} onTake={() => handleTakeMed(nextMed.id)} />
+              ) : (
+                <div className="rounded-2xl p-5 bg-amber2-400/10 border-2 border-amber2-400/40 text-center">
+                  <Icon name="check" className="w-10 h-10 text-amber2-600 mx-auto mb-2" stroke={3} />
+                  <div className="text-lg font-bold text-amber2-600">今天的药都吃完啦</div>
+                </div>
+              )}
+
+              {/* 待服用药品 */}
+              {pendingMeds.filter(m => m.id !== (nextMed && nextMed.id)).map((med) => (
+                <div key={med.id} className="rounded-2xl p-4 bg-cream-50 border border-cream-200 shadow-sm flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-amber2-400/15 text-amber2-600 flex items-center justify-center flex-shrink-0">
+                    <Icon name="clock" className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xl font-bold text-stone-800">{med.time}</div>
+                    <div className="text-base text-stone-700 truncate">{med.name}</div>
+                    <div className="text-sm text-stone-500">{med.dose} · {med.note}</div>
+                  </div>
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-stone-200 text-stone-600 flex-shrink-0">待服用</span>
+                </div>
+              ))}
+
+              {/* 已服用药品（前端统一显示已服用，后台区分按时/补服） */}
+              {takenMeds.map((med) => (
+                <div key={med.id} className="rounded-2xl p-4 bg-amber2-400/10 border border-amber2-400/30 shadow-sm flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-amber2-500 text-white flex items-center justify-center flex-shrink-0">
+                    <Icon name="check" className="w-7 h-7" stroke={3} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xl font-bold text-stone-700">{med.time}</div>
+                    <div className="text-base text-stone-700 truncate">{med.name}</div>
+                    <div className="text-sm text-stone-500">{med.dose} · {med.note}</div>
+                  </div>
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber2-500 text-white flex-shrink-0">已服用</span>
+                </div>
+              ))}
+
+            </div>
+            <Nav />
+          </div>
+        );
+      }
+
+      // 血压记录
+      if (currentScreen === "bp") {
+        // 血压拍照记录流程（合并：上方拍照区 + 下方识别/手动输入）
+        if (bpRecordStep === 1) {
+          const hasValues = bpRecordValues.sys && bpRecordValues.dia;
+          const [photoTaken, setPhotoTaken] = [bpRecordValues.sys !== "", null];
+          return (
+            <div className="flex flex-col h-full bg-cream-100">
+              <div className="bg-cream-50 px-5 py-3 border-b border-cream-200 flex items-center justify-between">
+                <button onClick={() => setBpRecordStep(0)} className="text-amber2-600 cursor-pointer flex items-center gap-1"><Icon name="chevronLeft" className="w-5 h-5" stroke={2.5} />返回</button>
+                <span className="text-lg font-bold text-stone-800">拍照记录</span>
+                <span className="w-12"></span>
+              </div>
+              <div className="flex-1 overflow-auto">
+                {/* 上方：拍照区 */}
+                <div className="bg-stone-800 relative" style={{ height: "220px" }}>
+                  {bpRecordValues.sys ? (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center text-stone-300">
+                        <Icon name="check" className="w-12 h-12 mx-auto mb-1 text-amber2-400" stroke={2.5} />
+                        <div className="text-sm text-amber2-400 font-medium">已拍摄</div>
+                        <button onClick={() => setBpRecordValues({ sys: "", dia: "", hr: "" })} className="mt-2 text-xs text-stone-400 underline cursor-pointer">重新拍照</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <div className="w-48 h-32 border-2 border-amber2-400 rounded-xl flex items-center justify-center mb-4">
+                        <div className="text-center text-stone-400">
+                          <Icon name="heart" className="w-10 h-10 mx-auto mb-1" />
+                          <div className="text-sm">对准血压计屏幕</div>
+                        </div>
+                      </div>
+                      <button onClick={() => setBpRecordValues({ sys: "138", dia: "85", hr: "72" })} className="w-16 h-16 rounded-full bg-white border-4 border-amber2-400 cursor-pointer hover:scale-105 transition"></button>
+                    </div>
+                  )}
+                </div>
+                {/* 下方：识别数值 / 手动输入 */}
+                <div className="p-4 space-y-4">
+                  <div className="text-base font-medium text-stone-700">{bpRecordValues.sys ? "识别结果（可修改）" : "请拍照或手动填写数值"}</div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-cream-50 border border-cream-200 rounded-xl p-3">
+                      <label className="text-xs text-stone-500 block mb-1 text-center">高压</label>
+                      <input type="number" value={bpRecordValues.sys} onChange={e => setBpRecordValues({...bpRecordValues, sys: e.target.value})} placeholder="--" className="w-full text-2xl font-bold text-center text-stone-800 bg-transparent outline-none" />
+                    </div>
+                    <div className="bg-cream-50 border border-cream-200 rounded-xl p-3">
+                      <label className="text-xs text-stone-500 block mb-1 text-center">低压</label>
+                      <input type="number" value={bpRecordValues.dia} onChange={e => setBpRecordValues({...bpRecordValues, dia: e.target.value})} placeholder="--" className="w-full text-2xl font-bold text-center text-stone-800 bg-transparent outline-none" />
+                    </div>
+                    <div className="bg-cream-50 border border-cream-200 rounded-xl p-3">
+                      <label className="text-xs text-stone-500 block mb-1 text-center">心率</label>
+                      <input type="number" value={bpRecordValues.hr} onChange={e => setBpRecordValues({...bpRecordValues, hr: e.target.value})} placeholder="--" className="w-full text-2xl font-bold text-center text-stone-800 bg-transparent outline-none" />
+                    </div>
+                  </div>
+                  {!bpRecordValues.sys && <div className="text-xs text-stone-400 text-center">拍照后数值会自动填入，识别不准确可手动修改</div>}
+                </div>
+              </div>
+              <div className="p-4 border-t border-cream-200 bg-cream-50">
+                <button onClick={() => setBpRecordStep(3)} disabled={!hasValues} className={`w-full py-5 text-xl font-bold rounded-2xl cursor-pointer transition ${hasValues ? "bg-amber2-500 hover:bg-amber2-600 text-white" : "bg-stone-200 text-stone-400"}`}>保存记录</button>
+              </div>
+            </div>
+          );
+        }
+        // 保存成功
+        if (bpRecordStep === 3) {
+          return (
+            <div className="flex flex-col h-full bg-cream-100 items-center justify-center p-8">
+              <div className="w-24 h-24 rounded-full bg-amber2-500 text-white flex items-center justify-center mb-6 anim-pop">
+                <Icon name="check" className="w-14 h-14" stroke={3} />
+              </div>
+              <div className="text-2xl font-bold text-stone-800 mb-3">记录成功</div>
+              <div className="bg-cream-50 border border-cream-200 rounded-xl p-4 w-full max-w-xs mb-6">
+                <div className="flex justify-between text-base text-stone-600 mb-2"><span>高压</span><span className="font-bold text-stone-800">{bpRecordValues.sys} mmHg</span></div>
+                <div className="flex justify-between text-base text-stone-600 mb-2"><span>低压</span><span className="font-bold text-stone-800">{bpRecordValues.dia} mmHg</span></div>
+                <div className="flex justify-between text-base text-stone-600"><span>心率</span><span className="font-bold text-stone-800">{bpRecordValues.hr} 次/分</span></div>
+              </div>
+              <button onClick={() => setBpRecordStep(0)} className="w-full max-w-xs py-4 bg-amber2-500 text-white text-lg font-bold rounded-2xl cursor-pointer hover:bg-amber2-600 transition">返回血压页</button>
+            </div>
+          );
+        }
+
+        const offsetMap = { day: dayOffset, week: weekOffset, month: monthOffset, year: yearOffset };
+        const setOffsetMap = { day: setDayOffset, week: setWeekOffset, month: setMonthOffset, year: setYearOffset };
+        const periodOffset = offsetMap[bpPeriod];
+        // 不同段类型生成数据
+        const genData = (kind, off) => {
+          if (kind === "day") {
+            return Array.from({ length: 6 }, (_, i) => {
+              const seed = off * 6 + i;
+              const hours = ["07:00","10:00","13:00","16:00","19:00","22:00"];
+              return {
+                label: hours[i],
+                sys: 132 + Math.round(Math.sin(seed/1.3) * 10 + (seed%4)),
+                dia: 82 + Math.round(Math.cos(seed/1.5) * 5 + (seed%2)),
+                hr: 72 + Math.round(Math.sin(seed/1.6) * 10),
+              };
+            });
+          }
+          if (kind === "week") {
+            return Array.from({ length: 7 }, (_, i) => {
+              const seed = off * 7 + i;
+              const baseDate = off === 0 ? `6/${2+i}` : off === 1 ? `5/${26+i}` : `5/${19+i}`;
+              return {
+                label: baseDate,
+                sys: 130 + Math.round(Math.sin(seed/2) * 12 + (seed%5)),
+                dia: 80 + Math.round(Math.cos(seed/2) * 7 + (seed%3)),
+                hr: 72 + Math.round(Math.sin(seed/3) * 18),
+              };
+            });
+          }
+          if (kind === "month") {
+            return Array.from({ length: 30 }, (_, i) => {
+              const seed = off * 30 + i;
+              return {
+                label: `${off === 0 ? 6 : 5}/${(i % 30) + 1}`,
+                sys: 128 + Math.round(Math.sin(seed/3) * 12 + (seed%5)),
+                dia: 78 + Math.round(Math.cos(seed/4) * 7 + (seed%3)),
+                hr: 70 + Math.round(Math.sin(seed/5) * 18),
+              };
+            });
+          }
+          // year
+          return Array.from({ length: 12 }, (_, i) => {
+            const seed = off * 12 + i;
+            return {
+              label: `${i + 1}月`,
+              sys: 130 + Math.round(Math.sin(seed/2) * 8 + (seed%4)),
+              dia: 80 + Math.round(Math.cos(seed/2) * 5 + (seed%2)),
+              hr: 72 + Math.round(Math.sin(seed/3) * 12),
+            };
+          });
+        };
+        const data = genData(bpPeriod, periodOffset);
+        // 段标签
+        const periodLabel = (() => {
+          if (bpPeriod === "day") return periodOffset === 0 ? "今天 6/8" : periodOffset === 1 ? "昨天 6/7" : `${periodOffset}天前`;
+          if (bpPeriod === "week") return periodOffset === 0 ? "本周 6/2-6/8" : periodOffset === 1 ? "上周 5/26-6/1" : `${periodOffset}周前`;
+          if (bpPeriod === "month") return periodOffset === 0 ? "6月" : periodOffset === 1 ? "5月" : `${periodOffset}月前`;
+          return periodOffset === 0 ? "2026年" : `${2026 - periodOffset}年`;
+        })();
+        const shiftPeriod = (delta) => {
+          const cur = offsetMap[bpPeriod];
+          setOffsetMap[bpPeriod](Math.max(0, cur + delta));
+        };
+        // 触摸滑动（只绑定到趋势图区域）
+        let touchStartX = 0;
+        const onTouchStart = (e) => { touchStartX = e.touches[0].clientX; };
+        const onTouchEnd = (e) => {
+          const dx = e.changedTouches[0].clientX - touchStartX;
+          if (Math.abs(dx) > 50) {
+            if (dx > 0) shiftPeriod(1);
+            else shiftPeriod(-1);
+          }
+        };
+        const periods = [
+          { key: "day", label: "天" },
+          { key: "week", label: "周" },
+          { key: "month", label: "月" },
+          { key: "year", label: "年" },
+        ];
+        return (
+          <div className="flex flex-col h-full bg-cream-100 relative">
+            <div className="bg-cream-50 px-5 py-3 border-b border-cream-200">
+              <div className="text-xl font-bold text-stone-800">血压记录</div>
+            </div>
+            {/* 时段条：天/周/月/年 + 段切换 */}
+            <div className="bg-cream-50 px-3 py-2 border-b border-cream-200 flex items-center gap-2">
+              <div className="flex bg-cream-200 rounded-lg p-0.5">
+                {periods.map(p => (
+                  <button key={p.key} onClick={() => setBpPeriod(p.key)} className={`px-3 py-1 rounded-md text-sm font-medium cursor-pointer ${bpPeriod === p.key ? "bg-amber2-500 text-white" : "text-stone-500"}`}>{p.label}</button>
+                ))}
+              </div>
+              <div className="flex-1 flex items-center justify-end gap-1">
+                <button onClick={() => shiftPeriod(1)} className="w-7 h-7 rounded-md hover:bg-cream-200 cursor-pointer flex items-center justify-center text-stone-600"><Icon name="chevronLeft" className="w-4 h-4" stroke={2.5} /></button>
+                <span className="text-sm font-bold text-stone-700 px-1 min-w-[80px] text-center">{periodLabel}</span>
+                <button onClick={() => shiftPeriod(-1)} disabled={periodOffset === 0} className={`w-7 h-7 rounded-md flex items-center justify-center cursor-pointer ${periodOffset === 0 ? "text-stone-300" : "text-stone-600 hover:bg-cream-200"}`}><Icon name="chevron" className="w-4 h-4" stroke={2.5} /></button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-auto p-3 space-y-3 pb-24">
+              {/* 趋势图区域（左右滑动切段） */}
+              <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className="space-y-3">
+                {/* 血压趋势 */}
+                <div className="bg-cream-50 rounded-2xl p-3 shadow-sm border border-cream-200">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-base font-bold text-stone-700">血压</span>
+                    <Legend items={[{ label: "高压", color: "#E8924A" },{ label: "低压", color: "#7C9CB5" }]} />
+                  </div>
+                  <LineTrend data={data} height={100} warnLines={[
+                    { value: 140, color: "#DC2626", label: "高压警戒" },
+                    { value: 90, color: "#7C9CB5", label: "低压警戒" },
+                  ]} lines={[
+                    { key: "sys", color: "#E8924A", abnormalCheck: v => v >= 140 },
+                    { key: "dia", color: "#7C9CB5", abnormalCheck: v => v >= 90 },
+                  ]} />
+                </div>
+                {/* 心率趋势 */}
+                <div className="bg-cream-50 rounded-2xl p-3 shadow-sm border border-cream-200">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-base font-bold text-stone-700">心率</span>
+                    <Legend items={[{ label: "心率", color: "#C99A8C" },{ label: "正常 60-100", color: "#A8A29E" }]} />
+                  </div>
+                  <LineTrend data={data} height={80} warnLines={[
+                    { value: 100, color: "#A8A29E", label: "上限" },
+                    { value: 60, color: "#A8A29E", label: "下限" },
+                  ]} lines={[
+                    { key: "hr", color: "#C99A8C", abnormalCheck: v => v < 60 || v > 100 },
+                  ]} />
+                </div>
+                <div className="text-xs text-stone-400 text-center">← 左右滑动趋势图查看其他时段 →</div>
+              </div>
+              {/* 拍照记录按钮 */}
+              <button onClick={() => { setBpRecordValues({ sys: "", dia: "", hr: "" }); setBpRecordStep(1); }} className="w-full py-5 bg-amber2-500 hover:bg-amber2-600 text-white rounded-2xl shadow-sm flex items-center justify-center gap-3 cursor-pointer transition">
+                <Icon name="camera" className="w-8 h-8" />
+                <div className="text-left">
+                  <div className="text-xl font-bold">拍照记录</div>
+                  <div className="text-sm opacity-80">对着血压计屏幕拍一下</div>
+                </div>
+              </button>
+              <div className="text-base font-bold text-stone-600">最近记录</div>
+              {bpRecords.map((r, i) => (
+                <div key={i} className={`bg-cream-50 rounded-xl p-3 shadow-sm border-l-4 ${r.sys >= 140 || r.dia >= 90 ? "border-rose-400" : "border-amber2-400"}`}>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className={`text-xl font-bold ${r.sys >= 140 ? "text-rose-600" : "text-stone-800"}`}>{r.sys}</span>
+                      <span className="text-lg text-stone-400 mx-1">/</span>
+                      <span className={`text-xl font-bold ${r.dia >= 90 ? "text-rose-600" : "text-stone-800"}`}>{r.dia}</span>
+                      <span className="text-xs text-stone-400 ml-2">mmHg</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs text-stone-400">{r.date}</div>
+                      <div className={`text-xs ${r.hr<60||r.hr>100 ? "text-rose-600 font-bold" : "text-stone-500"}`}>心率 {r.hr}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Nav />
+          </div>
+        );
+      }
+
+      // 我的药品 - 拍照添加
+      if (currentScreen === "meds") {
+        return (
+          <div className="flex flex-col h-full bg-cream-100">
+            <div className="bg-cream-50 px-5 py-4 border-b border-cream-200 flex justify-between items-center">
+              <button onClick={() => setCurrentScreen("home")} className="flex items-center gap-1 text-amber2-600 cursor-pointer">
+                <Icon name="chevronLeft" className="w-6 h-6" stroke={2.5} />
+                <span className="text-base font-bold">返回</span>
+              </button>
+              <div className="text-2xl font-bold text-stone-800">我的药盒</div>
+              <button onClick={() => setPhotoStep(1)} className="px-3 py-2 bg-amber2-500 hover:bg-amber2-600 text-white rounded-xl text-base font-bold cursor-pointer transition flex items-center gap-1">
+                <Icon name="camera" className="w-5 h-5" /> 拍照添加
+              </button>
+            </div>
+            <div className="flex-1 overflow-auto p-4 space-y-3 pb-20">
+              {medications.map((med) => (
+                <div key={med.id} className="bg-cream-50 rounded-2xl p-5 shadow-sm border border-cream-200">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-amber2-400/20 text-amber2-600 flex items-center justify-center flex-shrink-0">
+                      <Icon name="pill" className="w-7 h-7" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-xl font-bold text-stone-800 mb-1">{med.name}</div>
+                      <div className="text-lg text-stone-500">每次 {med.dose} · {med.note}</div>
+                      <div className="text-base text-amber2-600 mt-1">每天 {med.time}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Nav />
+          </div>
+        );
+      }
+
+      return null;
+    }
+
+    // ==================== 子女端 ====================
+    function ChildApp() {
+      const [view, setView] = useState({ screen: "overview", elderId: null }); // screen: overview | elderHome | elderMeds | elderBp | elderSettings | photoReview | likeFlow | bindFlow
+      const [showAddMed, setShowAddMed] = useState(false);
+      const [bpPeriod, setBpPeriod] = useState("week");
+      const [likeSent, setLikeSent] = useState(false);
+      const [bindStep, setBindStep] = useState(0); // 0=未开始 1=输入手机号 2=等待确认 3=成功
+      const [editingMed, setEditingMed] = useState(null); // 正在编辑的药品ID
+
+      const elders = [
+        { id: 0, name: "妈妈（王阿姨）", emoji: "👩",
+          today: { taken: 1, total: 3, allDone: false },
+          bp: { sys: 138, dia: 85, hr: 72, time: "08:30" },
+          alerts: 2, lowStock: 1,
+        },
+        { id: 1, name: "爸爸（王叔叔）", emoji: "👨",
+          today: { taken: 2, total: 2, allDone: true },
+          bp: { sys: 128, dia: 78, hr: 68, time: "07:50" },
+          alerts: 0, lowStock: 0,
+        },
+      ];
+
+      const parentMeds = [
+        { id: 1, name: "苯磺酸氨氯地平片", dose: "1片", times: ["08:00"], status: "taken", remaining: 22, note: "餐后服用",
+          history: [{label:"6/2",status:"taken"},{label:"6/3",status:"taken"},{label:"6/4",status:"missed"},{label:"6/5",status:"taken"},{label:"6/6",status:"taken"},{label:"6/7",status:"taken"},{label:"6/8",status:"taken"}] },
+        { id: 2, name: "二甲双胍缓释片", dose: "1片", times: ["12:00"], status: "pending", remaining: 8, note: "随餐服用",
+          history: [{label:"6/2",status:"taken"},{label:"6/3",status:"taken"},{label:"6/4",status:"taken"},{label:"6/5",status:"missed"},{label:"6/6",status:"taken"},{label:"6/7",status:"taken"},{label:"6/8",status:"pending"}] },
+        { id: 3, name: "阿托伐他汀钙片", dose: "1片", times: ["20:00"], status: "pending", remaining: 15, note: "睡前服用",
+          history: [{label:"6/2",status:"taken"},{label:"6/3",status:"taken"},{label:"6/4",status:"taken"},{label:"6/5",status:"taken"},{label:"6/6",status:"taken"},{label:"6/7",status:"taken"},{label:"6/8",status:"pending"}] },
+      ];
+
+      const weekData = [
+        { label: "6/2", sys: 136, dia: 84, hr: 71 },
+        { label: "6/3", sys: 130, dia: 80, hr: 58 },
+        { label: "6/4", sys: 148, dia: 92, hr: 78 },
+        { label: "6/5", sys: 135, dia: 82, hr: 70 },
+        { label: "6/6", sys: 135, dia: 82, hr: 72 },
+        { label: "6/7", sys: 142, dia: 88, hr: 105 },
+        { label: "6/8", sys: 138, dia: 85, hr: 72 },
+      ];
+      const monthData = Array.from({ length: 30 }, (_, i) => ({
+        label: `${5 + Math.floor((i+9)/30)}/${((i+9) % 30) + 1}`,
+        sys: 128 + Math.round(Math.sin(i/3) * 12 + (i % 5)),
+        dia: 78 + Math.round(Math.cos(i/4) * 7 + (i % 3)),
+        hr: 70 + Math.round(Math.sin(i/5) * 18),
+      }));
+
+      const elder = elders.find(e => e.id === view.elderId) || elders[0];
+
+      const ElderNav = () => (
+        <div className="bg-cream-50 border-t border-cream-200 flex">
+          <NavItem icon="home" label="首页" active={view.screen==="elderHome"} activeColor="text-amber2-600" onClick={() => setView({...view, screen: "elderHome"})} />
+          <NavItem icon="pill" label="药品" active={view.screen==="elderMeds"} activeColor="text-amber2-600" onClick={() => setView({...view, screen: "elderMeds"})} />
+          <NavItem icon="chart" label="血压心率" active={view.screen==="elderBp"} activeColor="text-amber2-600" onClick={() => setView({...view, screen: "elderBp"})} />
+        </div>
+      );
+
+      // 全员概览（首页）
+      if (view.screen === "overview") {
+        const allDoneEld = elders.filter(e => e.today.allDone);
+        return (
+          <div className="flex flex-col h-full bg-cream-100">
+            <div className="bg-cream-50 px-5 py-3 border-b border-cream-200 flex items-center justify-between">
+              <div className="text-xs text-stone-500">今天 06-08 周一</div>
+              <button className="w-9 h-9 rounded-full bg-cream-200 flex items-center justify-center cursor-pointer hover:bg-cream-100">
+                <Icon name="gear" className="w-5 h-5 text-stone-600" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-auto p-4 space-y-4">
+              {/* 服药提醒通知（优先级高于喜报） */}
+              {(() => {
+                const medAlerts = [
+                  { id: "alert1", elderName: "妈妈", time: "08:00", medName: "苯磺酸氨氯地平片", minutesAgo: 45 }
+                ];
+                if (medAlerts.length > 0 && !likeSent) {
+                  return (
+                    <div className="rounded-2xl p-4 bg-gradient-to-br from-rose-100 to-red-50 border-2 border-rose-300 shadow-md">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Icon name="warn" className="w-5 h-5 text-rose-500" />
+                        <span className="text-base font-bold text-rose-600">服药提醒</span>
+                        <span className="ml-auto text-xs text-rose-400">{medAlerts[0].minutesAgo}分钟前</span>
+                      </div>
+                      {medAlerts.map(a => (
+                        <div key={a.id} className="flex items-center gap-3 py-2">
+                          <div className="w-10 h-10 rounded-full bg-rose-500/15 flex items-center justify-center">
+                            <Icon name="pill" className="w-5 h-5 text-rose-500" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-bold text-stone-800">{a.elderName} {a.time} 的药还没吃</div>
+                            <div className="text-xs text-stone-500">{a.medName}</div>
+                          </div>
+                        </div>
+                      ))}
+                      <div className="mt-3 flex gap-2">
+                        <button onClick={() => { setShowReminder && setShowReminder(true); alert("已向老人端发送服药提醒"); }} className="flex-1 py-2.5 bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold rounded-xl cursor-pointer transition flex items-center justify-center gap-1">
+                          <Icon name="bell" className="w-4 h-4" /> 提醒下
+                        </button>
+                        <button className="flex-1 py-2.5 bg-cream-200 text-stone-600 text-sm font-bold rounded-xl cursor-pointer hover:bg-cream-300 transition">我知道了</button>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+              {/* 今日全勤喜报 + 一键点赞（无服药提醒时才展示） */}
+              {allDoneEld.length > 0 && !likeSent && (() => {
+                const medAlerts = [{ id: "alert1" }]; // same check
+                return medAlerts.length === 0;
+              })() && (
+                <div className="rounded-2xl p-4 bg-gradient-to-br from-rose-300 to-amber2-400 text-white shadow-md">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon name="sparkle" className="w-5 h-5" />
+                    <span className="text-base font-bold">今日全勤喜报</span>
+                  </div>
+                  <div className="text-sm mb-3">{allDoneEld.map(e => e.name.split('（')[0]).join("、")} 今天按时完成了所有服药 🎉 给个鼓励吧</div>
+                  <button onClick={() => setLikeSent(true)} className="w-full py-3 bg-white text-rose-500 text-base font-bold rounded-xl flex items-center justify-center gap-2 cursor-pointer hover:bg-cream-50 transition">
+                    <Icon name="thumbUp" className="w-5 h-5" /> 给爸妈点个赞
+                  </button>
+                </div>
+              )}
+              {likeSent && (
+                <div className="rounded-2xl p-3 bg-amber2-400/20 border border-amber2-400/40 text-amber2-600 text-sm flex items-center gap-2">
+                  <Icon name="check" className="w-4 h-4" stroke={2.5} /> 已发送鼓励，老人会收到提醒
+                </div>
+              )}
+              {/* 老人卡片列表 */}
+              {elders.map(e => (
+                <button key={e.id} onClick={() => setView({ screen: "elderHome", elderId: e.id })} className="w-full bg-cream-50 rounded-2xl p-4 shadow-sm border border-cream-200 cursor-pointer hover:shadow-md transition text-left">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-amber2-400/20 rounded-full flex items-center justify-center text-2xl">{e.emoji}</div>
+                      <div>
+                        <div className="text-base font-bold text-stone-800">{e.name}</div>
+                        {e.alerts > 0 ? (
+                          <div className="text-xs text-rose-500 flex items-center gap-1"><Icon name="warn" className="w-3 h-3" /> {e.alerts} 条通知</div>
+                        ) : (
+                          <div className="text-xs text-amber2-600">一切正常</div>
+                        )}
+                      </div>
+                    </div>
+                    <Icon name="chevron" className="w-5 h-5 text-stone-300" stroke={2} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-cream-100 rounded-lg p-2.5">
+                      <div className="text-xs text-stone-500 mb-1">今日用药</div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-base font-bold ${e.today.allDone ? "text-amber2-600" : "text-stone-700"}`}>{e.today.taken}/{e.today.total}</span>
+                        {e.today.allDone && <span className="text-xs px-1.5 py-0.5 bg-amber2-500 text-white rounded">全勤</span>}
+                      </div>
+                    </div>
+                    <div className="bg-cream-100 rounded-lg p-2.5">
+                      <div className="text-xs text-stone-500 mb-1">血压 / 心率</div>
+                      <div className={`text-base font-bold ${e.bp.sys>=140 ? "text-rose-600" : "text-stone-700"}`}>{e.bp.sys}/{e.bp.dia} <span className="text-stone-400 text-xs">·</span> {e.bp.hr}</div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+              {/* 绑定新老人 */}
+              <button onClick={() => setView({ ...view, screen: "bindFlow" })} className="w-full py-4 border-2 border-dashed border-stone-300 rounded-2xl text-stone-500 cursor-pointer hover:bg-cream-50 transition flex items-center justify-center gap-2">
+                <Icon name="plus" className="w-5 h-5" stroke={2.5} /> 绑定新的老人
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      // 绑定新老人流程
+      if (view.screen === "bindFlow") {
+        return (
+          <div className="flex flex-col h-full bg-cream-100">
+            <div className="bg-cream-50 px-4 py-3 border-b border-cream-200 flex items-center gap-3">
+              <button onClick={() => { setView({ ...view, screen: "overview" }); setBindStep(0); }} className="cursor-pointer text-stone-500 hover:text-stone-700"><Icon name="chevronLeft" className="w-6 h-6" stroke={2.5} /></button>
+              <span className="flex-1 font-bold text-stone-800 text-lg">绑定老人</span>
+            </div>
+            <div className="flex-1 overflow-auto p-5">
+              {bindStep === 0 && (
+                <div className="space-y-5">
+                  <div className="text-center mb-6">
+                    <div className="w-16 h-16 mx-auto rounded-full bg-amber2-400/20 text-amber2-600 flex items-center justify-center mb-3"><Icon name="user" className="w-9 h-9" /></div>
+                    <div className="text-lg font-bold text-stone-800">输入老人的手机号</div>
+                    <div className="text-sm text-stone-500 mt-1">老人需先安装此 App 并选择"为自己使用"</div>
+                  </div>
+                  <div className="bg-cream-50 border border-cream-200 rounded-2xl p-4">
+                    <label className="text-sm text-stone-500 block mb-2">老人手机号码</label>
+                    <input type="tel" placeholder="请输入11位手机号" className="w-full text-2xl font-bold text-stone-800 bg-transparent outline-none border-b-2 border-amber2-400 pb-2 tracking-wider" defaultValue="138" />
+                  </div>
+                  <div className="bg-cream-50 border border-cream-200 rounded-2xl p-4">
+                    <label className="text-sm text-stone-500 block mb-2">称呼（如：妈妈/爸爸/奶奶）</label>
+                    <input type="text" placeholder="给老人起个称呼" className="w-full text-xl font-bold text-stone-800 bg-transparent outline-none border-b-2 border-amber2-400 pb-2" defaultValue="" />
+                  </div>
+                  <button onClick={() => setBindStep(1)} className="w-full py-5 bg-amber2-500 hover:bg-amber2-600 text-white text-xl font-bold rounded-2xl cursor-pointer transition mt-4">发送绑定邀请</button>
+                </div>
+              )}
+              {bindStep === 1 && (
+                <div className="text-center py-10 space-y-5">
+                  <div className="w-20 h-20 mx-auto rounded-full bg-amber2-400/20 text-amber2-600 flex items-center justify-center anim-pulse"><Icon name="bell" className="w-10 h-10" /></div>
+                  <div className="text-xl font-bold text-stone-800">等待老人确认</div>
+                  <div className="text-base text-stone-500 leading-relaxed">已向老人手机发送绑定邀请<br />老人在 App 内点击"同意"后即绑定成功</div>
+                  <div className="bg-cream-50 border border-cream-200 rounded-xl p-3 text-sm text-stone-500 mt-6">
+                    💡 如果老人不会操作，可以拿过老人的手机帮 TA 点"同意"
+                  </div>
+                  <button onClick={() => setBindStep(2)} className="w-full py-4 bg-amber2-500 hover:bg-amber2-600 text-white text-lg font-bold rounded-2xl cursor-pointer transition mt-6">模拟老人已确认</button>
+                </div>
+              )}
+              {bindStep === 2 && (
+                <div className="text-center py-10 space-y-5">
+                  <div className="w-24 h-24 mx-auto rounded-full bg-amber2-500 text-white flex items-center justify-center anim-pop"><Icon name="check" className="w-14 h-14" stroke={3} /></div>
+                  <div className="text-2xl font-bold text-stone-800">绑定成功</div>
+                  <div className="text-base text-stone-500">接下来可以为老人添加药品和设置用药提醒</div>
+                  <button onClick={() => { setView({ screen: "overview", elderId: null }); setBindStep(0); }} className="w-full py-4 bg-amber2-500 hover:bg-amber2-600 text-white text-lg font-bold rounded-2xl cursor-pointer transition mt-4">返回首页</button>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      // 点赞流程已简化为一键发送（保留路由 stub 兼容历史调用）
+      if (view.screen === "likeFlow") {
+        setView({ ...view, screen: "overview" });
+        return null;
+      }
+
+      // 老人详情 - 首页
+      if (view.screen === "elderHome") {
+        const lowStock = parentMeds.filter(m => m.remaining <= 10);
+        const taken = parentMeds.filter(m => m.status === "taken").length;
+        const total = parentMeds.length;
+        return (
+          <div className="flex flex-col h-full bg-cream-100">
+            <div className="bg-cream-50 px-4 py-3 border-b border-cream-200 flex items-center gap-3">
+              <button onClick={() => setView({ screen: "overview", elderId: null })} className="cursor-pointer text-stone-500 hover:text-stone-700"><Icon name="chevronLeft" className="w-6 h-6" stroke={2.5} /></button>
+              <span className="text-base font-bold text-stone-800">{elder.name} · 首页</span>
+            </div>
+            <div className="flex-1 overflow-auto p-4 space-y-4">
+              {/* 通知（仅余量 + 新药待录入） */}
+              {(lowStock.length > 0 || true) && (
+                <div className="bg-cream-50 rounded-xl shadow-sm border border-cream-200 overflow-hidden">
+                  <div className="px-4 py-2.5 border-b border-cream-200 font-bold text-stone-700 flex items-center gap-2">
+                    <Icon name="bell" className="w-4 h-4 text-amber2-600" /> 通知
+                  </div>
+                  <div className="divide-y divide-cream-200">
+                    {lowStock.map(med => (
+                      <div key={med.id} className="px-4 py-3 flex items-start gap-3">
+                        <div className="w-7 h-7 rounded-lg bg-amber2-400/20 text-amber2-600 flex items-center justify-center flex-shrink-0"><Icon name="warn" className="w-4 h-4" /></div>
+                        <div className="text-sm">
+                          <span className="text-stone-800 font-medium">药品余量不足</span>
+                          <div className="text-stone-500 mt-0.5">{med.name}：剩余 {med.remaining} 片（约 {med.remaining} 天）</div>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="px-4 py-3 flex items-start gap-3">
+                      <div className="w-7 h-7 rounded-lg bg-amber2-400/20 text-amber2-600 flex items-center justify-center flex-shrink-0"><Icon name="cameraLg" className="w-4 h-4" /></div>
+                      <div className="text-sm">
+                        <span className="text-stone-800 font-medium">妈妈拍了一个新药 · 待录入</span>
+                        <div className="text-stone-500 mt-0.5">服药时间：08:00、20:00 · 请补充剂量信息</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 今日用药进度 */}
+              <div className="bg-cream-50 rounded-xl p-4 shadow-sm border border-cream-200">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-bold text-stone-800">今日用药</span>
+                  <span className="text-sm text-stone-500">{taken}/{total} 已完成</span>
+                </div>
+                <div className="w-full bg-cream-200 rounded-full h-3 mb-3">
+                  <div className="bg-amber2-500 h-3 rounded-full transition-all" style={{ width: `${(taken/total)*100}%` }}></div>
+                </div>
+                <div className="space-y-2">
+                  {parentMeds.map(med => (
+                    <div key={med.id} className="flex items-center justify-between py-1">
+                      <div className="flex items-center gap-2">
+                        <span className={`w-3 h-3 rounded-full ${med.status === "taken" ? "bg-amber2-500" : med.status === "missed" ? "bg-rose-500" : "bg-stone-300"}`}></span>
+                        <span className="text-sm text-stone-700">{med.times[0]} {med.name}</span>
+                      </div>
+                      <span className={`text-xs px-2 py-0.5 rounded ${med.status === "taken" ? "bg-amber2-400/20 text-amber2-600" : med.status === "missed" ? "bg-rose-100 text-rose-700" : "bg-stone-100 text-stone-500"}`}>{med.status === "taken" ? "已服" : med.status === "missed" ? "漏服" : "待服"}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 最新血压心率（合并） */}
+              <div className="bg-cream-50 rounded-xl p-4 shadow-sm border border-cream-200">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-bold text-stone-800">最新血压 / 心率</span>
+                  <span className="text-xs text-stone-400">今日 {elder.bp.time}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-cream-100 rounded-lg p-3">
+                    <div className="text-xs text-stone-500 mb-1">血压 mmHg</div>
+                    <div className={`text-2xl font-bold ${elder.bp.sys >= 140 || elder.bp.dia >= 90 ? "text-rose-600" : "text-stone-800"}`}>{elder.bp.sys}/{elder.bp.dia}</div>
+                  </div>
+                  <div className="bg-cream-100 rounded-lg p-3">
+                    <div className="text-xs text-stone-500 mb-1">心率 次/分</div>
+                    <div className={`text-2xl font-bold ${elder.bp.hr<60||elder.bp.hr>100 ? "text-rose-600" : "text-stone-800"}`}>{elder.bp.hr}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ElderNav />
+          </div>
+        );
+      }
+
+      // 添加药品 modal
+      if (showAddMed) {
+        return (
+          <div className="flex flex-col h-full bg-cream-100">
+            <div className="bg-cream-50 px-4 py-3 border-b border-cream-200 flex items-center justify-between">
+              <button onClick={() => setShowAddMed(false)} className="text-amber2-600 text-base cursor-pointer">取消</button>
+              <span className="font-bold text-stone-800">添加药品</span>
+              <button onClick={() => setShowAddMed(false)} className="text-amber2-600 font-bold text-base cursor-pointer">保存</button>
+            </div>
+            <div className="flex-1 overflow-auto p-4">
+              <div className="bg-cream-50 rounded-xl p-4 shadow-sm border border-cream-200">
+                <div className="border-2 border-dashed border-stone-300 rounded-xl p-8 flex flex-col items-center gap-2 mb-4 cursor-pointer hover:bg-cream-100 transition">
+                  <Icon name="camera" className="w-8 h-8 text-stone-400" />
+                  <span className="text-stone-500">拍照识别药品</span>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm text-stone-500 block mb-1">药品名称 *</label>
+                    <input className="w-full border border-stone-300 rounded-lg px-3 py-2 outline-none focus:border-amber2-500 bg-white" placeholder="输入或拍照识别" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-sm text-stone-500 block mb-1">每次剂量 *</label>
+                      <div className="flex items-center border border-stone-300 rounded-lg overflow-hidden bg-white">
+                        <input className="flex-1 px-3 py-2 outline-none w-full" placeholder="1" />
+                        <select className="bg-cream-100 px-2 py-2 border-l border-stone-300 outline-none"><option>片</option><option>粒</option><option>ml</option></select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm text-stone-500 block mb-1">包装数量</label>
+                      <input className="w-full border border-stone-300 rounded-lg px-3 py-2 outline-none focus:border-amber2-500 bg-white" placeholder="如 30 片/盒" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-stone-500 block mb-1">服用时间 *</label>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-3 py-1 bg-amber2-400/20 text-amber2-600 rounded-full text-sm">08:00 ×</span>
+                      <button className="px-3 py-1 border border-dashed border-stone-300 rounded-full text-sm text-stone-500 cursor-pointer hover:bg-cream-100">+ 添加时间</button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-stone-500 block mb-1">备注</label>
+                    <input className="w-full border border-stone-300 rounded-lg px-3 py-2 outline-none focus:border-amber2-500 bg-white" placeholder="餐前/餐后/特殊提示" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // 老人详情 - 药品（日历视图 + 药品管理 子tab）
+      if (view.screen === "elderMeds") {
+        const subTab = view.medsSub || "calendar"; // calendar | manage
+        // 当前月（演示固定 2026-06）
+        const monthOffset = view.monthOffset || 0;
+        const today = new Date(2026, 5, 8); // 月份从0开始：5=June
+        const cursor = new Date(2026, 5 - monthOffset, 1);
+        const year = cursor.getFullYear();
+        const month = cursor.getMonth(); // 0-11
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const firstDow = new Date(year, month, 1).getDay(); // 0=周日
+        const todayDate = today.getDate();
+        const isCurrentMonth = (year === today.getFullYear() && month === today.getMonth());
+        // 药品筛选
+        const medFilter = view.medFilter || "all";
+
+        // 生成每天每个药的状态（确定性 mock）
+        const dayStatus = (d, medId) => {
+          if (year > today.getFullYear() || (year === today.getFullYear() && month > today.getMonth())) return "future";
+          if (isCurrentMonth && d > todayDate) return "future";
+          if (isCurrentMonth && d === todayDate && medId === 2) return "pending"; // 今天的二甲双胍待服
+          // 模拟规律：周日的二甲双胍(id=2)经常漏服
+          const dt = new Date(year, month, d);
+          if (dt.getDay() === 0 && medId === 2 && d % 14 < 8) return "missed";
+          // 6/4 氨氯地平漏服
+          if (d === 4 && month === 5 && medId === 1) return "missed";
+          // 6/5 二甲双胍漏服
+          if (d === 5 && month === 5 && medId === 2) return "missed";
+          // 偶发补服
+          if ((d * (medId + 1)) % 11 === 0 && d > 1) return "late";
+          return "taken";
+        };
+
+        // 当天聚合状态（用于格子底色）
+        const dayAggregate = (d) => {
+          const meds = medFilter === "all" ? parentMeds : parentMeds.filter(m => m.id === medFilter);
+          const statuses = meds.map(m => dayStatus(d, m.id));
+          if (statuses.every(s => s === "future")) return "future";
+          if (statuses.includes("missed")) return "missed";
+          if (statuses.includes("pending")) return "pending";
+          if (statuses.includes("late")) return "late";
+          if (statuses.every(s => s === "taken")) return "taken";
+          return "none";
+        };
+
+        const cellColor = {
+          taken: "bg-amber2-400/30 text-stone-700 border border-amber2-400/40",
+          late: "bg-yellow-100 text-stone-700 border border-yellow-200",
+          missed: "bg-rose-100 text-stone-700 border border-rose-200",
+          pending: "bg-cream-50 text-stone-600 border border-cream-200",
+          future: "bg-transparent text-stone-300",
+          none: "bg-stone-50 text-stone-400",
+        };
+
+        // 当月统计
+        const allDays = Array.from({ length: daysInMonth }, (_, i) => i + 1)
+          .filter(d => !(isCurrentMonth && d > todayDate));
+        let takenCount = 0, missedCount = 0, fullDays = 0;
+        allDays.forEach(d => {
+          const meds = medFilter === "all" ? parentMeds : parentMeds.filter(m => m.id === medFilter);
+          const ss = meds.map(m => dayStatus(d, m.id));
+          if (ss.every(s => s === "taken")) fullDays++;
+          ss.forEach(s => { if (s === "taken" || s === "late") takenCount++; if (s === "missed") missedCount++; });
+        });
+        const totalTasks = takenCount + missedCount;
+        const onTimeRate = totalTasks ? Math.round((takenCount / totalTasks) * 100) : 0;
+
+        // 选中日期详情
+        const selectedDay = view.selectedDay;
+        const buildDayTimeline = (d) => {
+          const list = [];
+          parentMeds.forEach(m => {
+            m.times.forEach(t => {
+              const s = dayStatus(d, m.id);
+              if (s === "future") return;
+              list.push({ time: t, name: m.name, dose: m.dose, status: s });
+            });
+          });
+          return list.sort((a, b) => a.time.localeCompare(b.time));
+        };
+
+        // 渲染日历格子
+        const cells = [];
+        for (let i = 0; i < firstDow; i++) cells.push(null);
+        for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+        while (cells.length % 7 !== 0) cells.push(null);
+
+        const monthLabel = `${year}年${month + 1}月`;
+
+        return (
+          <div className="flex flex-col h-full bg-cream-100">
+            <div className="bg-cream-50 px-4 py-3 border-b border-cream-200 flex items-center gap-3">
+              <button onClick={() => setView({ screen: "overview", elderId: null })} className="cursor-pointer text-stone-500 hover:text-stone-700"><Icon name="chevronLeft" className="w-6 h-6" stroke={2.5} /></button>
+              <span className="flex-1 font-bold text-stone-800 text-lg">{elder.name.split('（')[0]} · 药品</span>
+            </div>
+
+            {/* 子 Tab 切换 */}
+            <div className="bg-cream-50 px-4 pb-2 border-b border-cream-200 flex gap-1">
+              <button onClick={() => setView({ ...view, medsSub: "calendar" })} className={`flex-1 py-2.5 text-sm font-bold rounded-lg cursor-pointer transition ${subTab === "calendar" ? "bg-amber2-500 text-white" : "bg-cream-100 text-stone-500"}`}>用药日历</button>
+              <button onClick={() => setView({ ...view, medsSub: "manage" })} className={`flex-1 py-2.5 text-sm font-bold rounded-lg cursor-pointer transition ${subTab === "manage" ? "bg-amber2-500 text-white" : "bg-cream-100 text-stone-500"}`}>药品管理</button>
+            </div>
+
+            {subTab === "calendar" && (
+              <div className="flex-1 overflow-auto">
+                {/* 月份切换 + 药品筛选 */}
+                <div className="bg-cream-50 px-4 py-3 border-b border-cream-200 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => setView({ ...view, monthOffset: monthOffset + 1, selectedDay: null })} className="w-8 h-8 rounded-lg hover:bg-cream-200 cursor-pointer flex items-center justify-center text-stone-600"><Icon name="chevronLeft" className="w-4 h-4" stroke={2.5} /></button>
+                    <span className="text-base font-bold text-stone-800 min-w-[88px] text-center">{monthLabel}</span>
+                    <button onClick={() => setView({ ...view, monthOffset: Math.max(0, monthOffset - 1), selectedDay: null })} disabled={monthOffset === 0} className={`w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer ${monthOffset === 0 ? "text-stone-300" : "text-stone-600 hover:bg-cream-200"}`}><Icon name="chevron" className="w-4 h-4" stroke={2.5} /></button>
+                  </div>
+                  <select value={medFilter} onChange={e => setView({ ...view, medFilter: e.target.value === "all" ? "all" : Number(e.target.value), selectedDay: null })} className="bg-cream-100 border border-cream-200 rounded-lg px-3 py-1.5 text-sm text-stone-700 cursor-pointer outline-none">
+                    <option value="all">全部药品</option>
+                    {parentMeds.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                  </select>
+                </div>
+
+                {/* 月度小结（月份和日历之间） */}
+                <div className="flex items-center justify-around px-3 py-2 bg-cream-50 border-b border-cream-200">
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-amber2-600">{onTimeRate}<span className="text-xs">%</span></div>
+                    <div className="text-[10px] text-stone-500">按时率</div>
+                  </div>
+                  <div className="w-px h-7 bg-cream-200"></div>
+                  <div className="text-center">
+                    <div className={`text-lg font-bold ${missedCount > 0 ? "text-rose-500" : "text-stone-700"}`}>{missedCount}</div>
+                    <div className="text-[10px] text-stone-500">漏服次数</div>
+                  </div>
+                  <div className="w-px h-7 bg-cream-200"></div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-amber2-600">{fullDays}</div>
+                    <div className="text-[10px] text-stone-500">全勤天数</div>
+                  </div>
+                </div>
+
+                {/* 日历主体 */}
+                <div className="p-3">
+                  <div className="grid grid-cols-7 gap-1 mb-1">
+                    {["日", "一", "二", "三", "四", "五", "六"].map((w, i) => (
+                      <div key={i} className={`text-center text-xs py-1 ${i === 0 || i === 6 ? "text-stone-400" : "text-stone-500"}`}>{w}</div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-7 gap-1">
+                    {cells.map((d, i) => {
+                      if (d === null) return <div key={i} className="aspect-square"></div>;
+                      const agg = dayAggregate(d);
+                      const isToday = isCurrentMonth && d === todayDate;
+                      const isSelected = selectedDay === d;
+                      return (
+                        <button key={i} onClick={() => agg !== "future" && setView({ ...view, selectedDay: isSelected ? null : d })}
+                          className={`aspect-square rounded-lg text-sm font-medium cursor-pointer transition relative flex items-center justify-center ${cellColor[agg]} ${isToday ? "ring-2 ring-amber2-500" : ""} ${isSelected ? "ring-2 ring-stone-700" : ""} ${agg === "future" ? "cursor-default" : "hover:opacity-80"}`}>
+                          {d}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* 图例 */}
+                  <div className="flex items-center justify-around mt-3 px-2 py-2 bg-cream-50 rounded-lg border border-cream-200 text-xs text-stone-500">
+                    <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-amber2-400/30 border border-amber2-400/40"></span>按时</div>
+                    <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-yellow-100 border border-yellow-200"></span>补服</div>
+                    <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-rose-100 border border-rose-200"></span>漏服</div>
+                    <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-cream-50 border border-cream-200"></span>待服</div>
+                  </div>
+
+                  {/* 当天详情面板 */}
+                  {selectedDay && (() => {
+                    const timeline = buildDayTimeline(selectedDay);
+                    const missedNum = timeline.filter(t => t.status === "missed").length;
+                    return (
+                      <div className="mt-3 bg-cream-50 rounded-xl border border-cream-200 shadow-sm overflow-hidden">
+                        <div className="px-4 py-3 border-b border-cream-200 flex items-center justify-between">
+                          <div>
+                            <div className="font-bold text-stone-800">{month + 1}月{selectedDay}日</div>
+                            <div className="text-xs text-stone-500 mt-0.5">
+                              {timeline.length} 次服药 {missedNum > 0 && <span className="text-rose-500">· {missedNum} 次漏服</span>}
+                              {timeline.length === 0 && "当天无服药任务"}
+                            </div>
+                          </div>
+                          <button onClick={() => setView({ ...view, selectedDay: null })} className="text-xs text-stone-400 hover:text-stone-600 cursor-pointer">收起</button>
+                        </div>
+                        <div className="divide-y divide-cream-200">
+                          {timeline.map((t, i) => {
+                            const cfg = {
+                              taken: { tag: "按时", cls: "bg-amber2-500 text-white", icon: "check" },
+                              late: { tag: "补服", cls: "bg-yellow-400 text-white", icon: "check" },
+                              missed: { tag: "漏服", cls: "bg-rose-500 text-white", icon: "warn" },
+                              pending: { tag: "待服", cls: "bg-stone-300 text-stone-600", icon: "clock" },
+                            }[t.status];
+                            return (
+                              <div key={i} className="px-4 py-3 flex items-center gap-3">
+                                <div className="text-sm font-bold text-stone-700 w-12">{t.time}</div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm text-stone-800 truncate">{t.name}</div>
+                                  <div className="text-xs text-stone-400">{t.dose}</div>
+                                </div>
+                                <span className={`px-2 py-1 rounded text-xs font-bold flex items-center gap-1 ${cfg.cls}`}>
+                                  <Icon name={cfg.icon} className="w-3 h-3" stroke={3} />
+                                  {cfg.tag}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+
+            {subTab === "manage" && (
+              <div className="flex-1 overflow-auto p-4 space-y-3">
+                {/* 编辑药品流程 */}
+                {editingMed !== null ? (() => {
+                  const med = parentMeds.find(m => m.id === editingMed);
+                  if (!med) return null;
+                  return (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <button onClick={() => setEditingMed(null)} className="text-amber2-600 cursor-pointer flex items-center gap-1"><Icon name="chevronLeft" className="w-5 h-5" stroke={2.5} />返回</button>
+                        <span className="font-bold text-stone-800">编辑药品</span>
+                        <span className="w-12"></span>
+                      </div>
+                      <div className="bg-cream-50 border border-cream-200 rounded-2xl p-4 space-y-4">
+                        <div>
+                          <label className="text-sm text-stone-500 block mb-1">药品名称</label>
+                          <input type="text" defaultValue={med.name} className="w-full text-lg font-bold text-stone-800 bg-transparent outline-none border-b-2 border-amber2-400 pb-2" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-sm text-stone-500 block mb-1">单次剂量</label>
+                            <input type="text" defaultValue={med.dose} className="w-full text-base text-stone-800 bg-transparent outline-none border-b border-cream-200 pb-1" />
+                          </div>
+                          <div>
+                            <label className="text-sm text-stone-500 block mb-1">备注</label>
+                            <input type="text" defaultValue={med.note} className="w-full text-base text-stone-800 bg-transparent outline-none border-b border-cream-200 pb-1" />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-sm text-stone-500 block mb-1">服药时间</label>
+                          <div className="flex gap-2 flex-wrap">
+                            {med.times.map((t, i) => (
+                              <span key={i} className="px-3 py-2 bg-amber2-400/20 text-amber2-600 rounded-lg text-base font-bold">{t}</span>
+                            ))}
+                            <button className="px-3 py-2 border border-dashed border-stone-300 rounded-lg text-stone-400 text-sm cursor-pointer hover:bg-cream-50">+ 添加时间</button>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-sm text-stone-500 block mb-1">包装数量（片）</label>
+                            <input type="number" defaultValue="30" className="w-full text-base text-stone-800 bg-transparent outline-none border-b border-cream-200 pb-1" />
+                          </div>
+                          <div>
+                            <label className="text-sm text-stone-500 block mb-1">低于多少天提醒</label>
+                            <input type="number" defaultValue="10" className="w-full text-base text-stone-800 bg-transparent outline-none border-b border-cream-200 pb-1" />
+                          </div>
+                        </div>
+                      </div>
+                      <button onClick={() => setEditingMed(null)} className="w-full py-4 bg-amber2-500 hover:bg-amber2-600 text-white text-lg font-bold rounded-2xl cursor-pointer transition">保存修改</button>
+                      <div className="flex gap-3">
+                        <button className="flex-1 py-3 bg-stone-100 border border-stone-200 text-stone-600 font-medium rounded-xl cursor-pointer hover:bg-stone-200 transition">暂停服药</button>
+                        <button className="flex-1 py-3 bg-rose-50 border border-rose-200 text-rose-500 font-medium rounded-xl cursor-pointer hover:bg-rose-100 transition">删除药品</button>
+                      </div>
+                    </div>
+                  );
+                })() : (
+                  <>
+                    <button onClick={() => setShowAddMed(true)} className="w-full py-3 bg-amber2-500 hover:bg-amber2-600 text-white rounded-xl text-base font-bold cursor-pointer transition flex items-center justify-center gap-2">
+                      <Icon name="plus" className="w-5 h-5" stroke={2.5} /> 添加新药品
+                    </button>
+                    {parentMeds.map(med => {
+                      const needRestock = med.remaining <= 10;
+                      return (
+                        <div key={med.id} className={`bg-cream-50 rounded-xl p-4 shadow-sm border ${needRestock ? "border-rose-200" : "border-cream-200"}`}>
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex items-start gap-3 flex-1 min-w-0">
+                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${needRestock ? "bg-rose-100 text-rose-500" : "bg-amber2-400/20 text-amber2-600"}`}>
+                                <Icon name="pill" className="w-6 h-6" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-bold text-stone-800 truncate">{med.name}</div>
+                                <div className="text-sm text-stone-500 mt-0.5">每次 {med.dose} · {med.note}</div>
+                                <div className="text-sm text-amber2-600 mt-0.5">每天 {med.times.join("、")}</div>
+                              </div>
+                            </div>
+                            <button onClick={() => setEditingMed(med.id)} className="text-stone-400 cursor-pointer hover:text-stone-600 flex-shrink-0 ml-2"><Icon name="edit" className="w-5 h-5" /></button>
+                          </div>
+                          <div className="flex items-center justify-between pt-3 border-t border-cream-200">
+                            <div className="text-sm">
+                              {needRestock ? (
+                                <span className="text-rose-500 font-bold flex items-center gap-1">
+                                  <Icon name="warn" className="w-4 h-4" /> 待补药 · 剩余 {med.remaining} 天
+                                </span>
+                              ) : (
+                                <span className="text-stone-600">📦 余量 {med.remaining} 天</span>
+                              )}
+                            </div>
+                            {needRestock ? (
+                              <button className="text-xs px-3 py-1.5 bg-amber2-500 text-white rounded-lg cursor-pointer hover:bg-amber2-600 font-bold">已补药</button>
+                            ) : (
+                              <button className="text-xs px-2 py-1 bg-cream-200 text-stone-500 rounded cursor-pointer hover:bg-stone-200">已补药</button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <div className="text-xs text-stone-400 text-center pt-2">想看用药执行情况？切到「用药日历」</div>
+                  </>
+                )}
+              </div>
+            )}
+            <ElderNav />
+          </div>
+        );
+      }
+
+      // 老人详情 - 血压心率（与老人端交互一致：天/周/月/年 + 滑动切段）
+      if (view.screen === "elderBp") {
+        const periodOffset = view.bpOffset || 0;
+        const genData = (kind, off) => {
+          if (kind === "day") {
+            return Array.from({ length: 6 }, (_, i) => {
+              const seed = off * 6 + i;
+              const hours = ["07:00","10:00","13:00","16:00","19:00","22:00"];
+              return {
+                label: hours[i],
+                sys: 132 + Math.round(Math.sin(seed/1.3) * 10 + (seed%4)),
+                dia: 82 + Math.round(Math.cos(seed/1.5) * 5 + (seed%2)),
+                hr: 72 + Math.round(Math.sin(seed/1.6) * 10),
+              };
+            });
+          }
+          if (kind === "week") {
+            return Array.from({ length: 7 }, (_, i) => {
+              const seed = off * 7 + i;
+              const baseDate = off === 0 ? `6/${2+i}` : off === 1 ? `5/${26+i}` : `5/${19+i}`;
+              return {
+                label: baseDate,
+                sys: 130 + Math.round(Math.sin(seed/2) * 12 + (seed%5)),
+                dia: 80 + Math.round(Math.cos(seed/2) * 7 + (seed%3)),
+                hr: 72 + Math.round(Math.sin(seed/3) * 18),
+              };
+            });
+          }
+          if (kind === "month") {
+            return Array.from({ length: 30 }, (_, i) => {
+              const seed = off * 30 + i;
+              return {
+                label: `${off === 0 ? 6 : 5}/${(i % 30) + 1}`,
+                sys: 128 + Math.round(Math.sin(seed/3) * 12 + (seed%5)),
+                dia: 78 + Math.round(Math.cos(seed/4) * 7 + (seed%3)),
+                hr: 70 + Math.round(Math.sin(seed/5) * 18),
+              };
+            });
+          }
+          return Array.from({ length: 12 }, (_, i) => {
+            const seed = off * 12 + i;
+            return {
+              label: `${i + 1}月`,
+              sys: 130 + Math.round(Math.sin(seed/2) * 8 + (seed%4)),
+              dia: 80 + Math.round(Math.cos(seed/2) * 5 + (seed%2)),
+              hr: 72 + Math.round(Math.sin(seed/3) * 12),
+            };
+          });
+        };
+        const data = genData(bpPeriod, periodOffset);
+        const periodLabel = (() => {
+          if (bpPeriod === "day") return periodOffset === 0 ? "今天 6/8" : periodOffset === 1 ? "昨天 6/7" : `${periodOffset}天前`;
+          if (bpPeriod === "week") return periodOffset === 0 ? "本周 6/2-6/8" : periodOffset === 1 ? "上周 5/26-6/1" : `${periodOffset}周前`;
+          if (bpPeriod === "month") return periodOffset === 0 ? "6月" : periodOffset === 1 ? "5月" : `${periodOffset}月前`;
+          return periodOffset === 0 ? "2026年" : `${2026 - periodOffset}年`;
+        })();
+        const shiftPeriod = (delta) => setView({ ...view, bpOffset: Math.max(0, periodOffset + delta) });
+        let touchStartX = 0;
+        const onTouchStart = (e) => { touchStartX = e.touches[0].clientX; };
+        const onTouchEnd = (e) => {
+          const dx = e.changedTouches[0].clientX - touchStartX;
+          if (Math.abs(dx) > 50) {
+            if (dx > 0) shiftPeriod(1);
+            else shiftPeriod(-1);
+          }
+        };
+        const periods = [
+          { key: "day", label: "天" },
+          { key: "week", label: "周" },
+          { key: "month", label: "月" },
+          { key: "year", label: "年" },
+        ];
+        return (
+          <div className="flex flex-col h-full bg-cream-100">
+            <div className="bg-cream-50 px-4 py-3 border-b border-cream-200 flex items-center gap-3">
+              <button onClick={() => setView({ screen: "overview", elderId: null })} className="cursor-pointer text-stone-500 hover:text-stone-700"><Icon name="chevronLeft" className="w-6 h-6" stroke={2.5} /></button>
+              <span className="flex-1 font-bold text-stone-800 text-lg">{elder.name.split('（')[0]} · 血压心率</span>
+            </div>
+            {/* 时段条：天/周/月/年 + 段切换 */}
+            <div className="bg-cream-50 px-3 py-2 border-b border-cream-200 flex items-center gap-2">
+              <div className="flex bg-cream-200 rounded-lg p-0.5">
+                {periods.map(p => (
+                  <button key={p.key} onClick={() => { setBpPeriod(p.key); setView({ ...view, bpOffset: 0 }); }} className={`px-3 py-1 rounded-md text-sm font-medium cursor-pointer ${bpPeriod === p.key ? "bg-amber2-500 text-white" : "text-stone-500"}`}>{p.label}</button>
+                ))}
+              </div>
+              <div className="flex-1 flex items-center justify-end gap-1">
+                <button onClick={() => shiftPeriod(1)} className="w-7 h-7 rounded-md hover:bg-cream-200 cursor-pointer flex items-center justify-center text-stone-600"><Icon name="chevronLeft" className="w-4 h-4" stroke={2.5} /></button>
+                <span className="text-sm font-bold text-stone-700 px-1 min-w-[80px] text-center">{periodLabel}</span>
+                <button onClick={() => shiftPeriod(-1)} disabled={periodOffset === 0} className={`w-7 h-7 rounded-md flex items-center justify-center cursor-pointer ${periodOffset === 0 ? "text-stone-300" : "text-stone-600 hover:bg-cream-200"}`}><Icon name="chevron" className="w-4 h-4" stroke={2.5} /></button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-auto p-3 space-y-3">
+              {/* 趋势图区域（左右滑动切段） */}
+              <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className="space-y-3">
+                <div className="bg-cream-50 rounded-xl p-3 shadow-sm border border-cream-200">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-bold text-stone-700">血压</span>
+                    <Legend items={[{ label: "高压", color: "#E8924A" },{ label: "低压", color: "#7C9CB5" }]} />
+                  </div>
+                  <LineTrend data={data} height={120} warnLines={[
+                    { value: 140, color: "#DC2626", label: "高压警戒" },
+                    { value: 90, color: "#7C9CB5", label: "低压警戒" },
+                  ]} lines={[
+                    { key: "sys", color: "#E8924A", abnormalCheck: v => v >= 140 },
+                    { key: "dia", color: "#7C9CB5", abnormalCheck: v => v >= 90 },
+                  ]} />
+                </div>
+                <div className="bg-cream-50 rounded-xl p-3 shadow-sm border border-cream-200">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-bold text-stone-700">心率</span>
+                    <Legend items={[{ label: "心率", color: "#C99A8C" },{ label: "正常 60-100", color: "#A8A29E" }]} />
+                  </div>
+                  <LineTrend data={data} height={100} warnLines={[
+                    { value: 100, color: "#A8A29E", label: "上限" },
+                    { value: 60, color: "#A8A29E", label: "下限" },
+                  ]} lines={[
+                    { key: "hr", color: "#C99A8C", abnormalCheck: v => v < 60 || v > 100 },
+                  ]} />
+                </div>
+                <div className="text-xs text-stone-400 text-center">← 左右滑动趋势图查看其他时段 →</div>
+              </div>
+              <div className="bg-cream-50 rounded-xl p-3 shadow-sm border border-cream-200">
+                <div className="text-sm font-bold text-stone-700 mb-3">详细记录</div>
+                {data.slice().reverse().slice(0, 7).map((d, i) => (
+                  <div key={i} className="flex justify-between py-2 border-b border-cream-200 last:border-0">
+                    <span className="text-sm text-stone-500">{d.label}</span>
+                    <span className="text-sm">
+                      <span className={`font-bold ${d.sys >= 140 || d.dia >= 90 ? "text-rose-600" : "text-stone-800"}`}>{d.sys}/{d.dia}</span>
+                      <span className="text-stone-400"> · </span>
+                      <span className={`font-bold ${d.hr < 60 || d.hr > 100 ? "text-rose-600" : "text-stone-800"}`}>{d.hr}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <ElderNav />
+          </div>
+        );
+      }
+
+      // 老人详情 - 设置
+      if (view.screen === "elderSettings") {
+        const Row = ({ label, value, toggle }) => (
+          <div className="px-4 py-3 border-b border-cream-200 last:border-0 flex justify-between items-center cursor-pointer hover:bg-cream-100">
+            <span className="text-stone-800">{label}</span>
+            {toggle ? (
+              <div className="w-10 h-6 bg-amber2-500 rounded-full relative"><div className="w-5 h-5 bg-white rounded-full absolute right-0.5 top-0.5 shadow"></div></div>
+            ) : (
+              <span className="text-stone-400 text-sm flex items-center gap-1">{value} <Icon name="chevron" className="w-3.5 h-3.5" stroke={2.5} /></span>
+            )}
+          </div>
+        );
+        return (
+          <div className="flex flex-col h-full bg-cream-100">
+            <div className="bg-cream-50 px-4 py-3 border-b border-cream-200 flex items-center gap-3">
+              <button onClick={() => setView({...view, screen: "elderHome"})} className="cursor-pointer text-stone-500 hover:text-stone-700"><Icon name="chevronLeft" className="w-6 h-6" stroke={2.5} /></button>
+              <span className="flex-1 font-bold text-stone-800 text-lg">{elder.name.split('（')[0]} · 设置</span>
+            </div>
+            <div className="flex-1 overflow-auto p-4 space-y-4">
+              <div className="bg-cream-50 rounded-xl shadow-sm border border-cream-200 overflow-hidden">
+                <Row label="提醒宽限期" value="30 分钟" />
+                <Row label="代提醒通知" toggle />
+                <Row label="血压警戒阈值" value="140/90 mmHg" />
+                <Row label="每日小结推送" toggle />
+                <Row label="解除绑定" value="" />
+              </div>
+              <div className="bg-cream-50 rounded-xl shadow-sm border border-cream-200 overflow-hidden">
+                <Row label="账号信息" value="" />
+                <Row label="关于" value="v1.0.0" />
+              </div>
+            </div>
+            <ElderNav />
+          </div>
+        );
+      }
+      return null;
+    }
+
+    // ==================== 主组件 ====================
+    function SmartPillboxPrototype() {
+      const [activeTab, setActiveTab] = useState("elderly");
+      return (
+        <div className="min-h-screen flex flex-col items-center py-8 px-4" style={{background:'linear-gradient(135deg,#EFE7DA,#E5DACA)'}}>
+          <h1 className="text-2xl font-bold text-stone-800 mb-2">智能药盒 App · 交互原型</h1>
+          <p className="text-sm text-stone-500 mb-6">点击页面内按钮可切换不同页面</p>
+          <div className="flex gap-2 mb-6">
+            <button onClick={() => setActiveTab("elderly")} className={`px-6 py-2 rounded-full font-bold text-sm cursor-pointer transition ${activeTab === "elderly" ? "bg-amber2-500 text-white shadow-lg" : "bg-cream-50 text-stone-600 shadow hover:shadow-md"}`}>老人端</button>
+            <button onClick={() => setActiveTab("child")} className={`px-6 py-2 rounded-full font-bold text-sm cursor-pointer transition ${activeTab === "child" ? "bg-amber2-500 text-white shadow-lg" : "bg-cream-50 text-stone-600 shadow hover:shadow-md"}`}>子女端</button>
+          </div>
+          <div className="w-[375px] h-[760px] bg-cream-50 rounded-[3rem] shadow-2xl border-8 border-stone-800 overflow-hidden relative">
+            <div className="h-11 bg-stone-800 flex items-center justify-center">
+              <div className="w-20 h-5 bg-stone-900 rounded-full"></div>
+            </div>
+            <div className="h-[calc(100%-2.75rem)] overflow-hidden">
+              {activeTab === "elderly" ? <ElderlyApp /> : <ChildApp />}
+            </div>
+          </div>
+          <div className="mt-6 text-xs text-stone-400">智能药盒 MVP · 产品交互原型 · 2026.06</div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<SmartPillboxPrototype />);
+  </script>
+</body>
+</html>

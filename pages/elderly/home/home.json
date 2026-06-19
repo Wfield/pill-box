@@ -1,0 +1,10 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "nav-item": "/components/nav-item/nav-item",
+    "line-trend": "/components/line-trend/line-trend",
+    "next-dose-card": "/components/next-dose-card/next-dose-card",
+    "missed-dose-card": "/components/missed-dose-card/missed-dose-card",
+    "take-med-button": "/components/take-med-button/take-med-button"
+  }
+}
