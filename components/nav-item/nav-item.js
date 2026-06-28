@@ -7,7 +7,7 @@ Component({
     icon: { type: String, value: '' },
     label: { type: String, value: '' },
     active: { type: Boolean, value: false },
-    activeColor: { type: String, value: '#E8924A' },
+    activeColor: { type: String, value: '#22C57E' },
   },
   methods: {
     onClick() {

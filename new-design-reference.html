@@ -1,0 +1,860 @@
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>智能药盒 · 首页</title>
+  <style>
+    :root {
+      --bg: oklch(97.5% 0.004 250);
+      --surface: oklch(100% 0 0);
+      --fg: oklch(21% 0.012 250);
+      --muted: oklch(56% 0.012 250);
+      --border: oklch(91% 0.006 250);
+      --accent: oklch(70% 0.18 153);
+      --accent-dark: oklch(58% 0.17 153);
+      --accent-soft: oklch(95% 0.045 153);
+      --health-blue: oklch(66% 0.12 230);
+      --blue-soft: oklch(95% 0.035 230);
+      --warn: oklch(72% 0.16 70);
+      --warn-soft: oklch(96% 0.04 78);
+      --danger: oklch(62% 0.20 25);
+      --danger-soft: oklch(96% 0.035 25);
+      --shadow: 0 16px 42px rgba(17, 24, 39, .08);
+      --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--fg);
+      background:
+        radial-gradient(circle at 18% 8%, oklch(94% 0.055 153), transparent 26rem),
+        linear-gradient(180deg, oklch(98% 0.006 153), var(--bg) 38%);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      text-wrap: pretty;
+    }
+    button, input { font: inherit; }
+    button { border: 0; cursor: pointer; }
+    .app {
+      width: min(1180px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      background: var(--bg);
+    }
+    .shell {
+      min-height: 100vh;
+      padding: 16px 14px 88px;
+    }
+    .statusbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 28px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .capsule {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: color-mix(in oklch, var(--surface) 84%, transparent);
+    }
+    .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--fg); opacity: .5; }
+    .appbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0 18px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, var(--accent), var(--accent-dark));
+      color: white;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 10px 24px color-mix(in oklch, var(--accent) 28%, transparent);
+    }
+    .logo svg { width: 24px; height: 24px; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font: 760 22px/1.15 var(--font-display); letter-spacing: 0; }
+    .sub { margin-top: 4px; color: var(--muted); font-size: 13px; }
+    .role {
+      display: flex;
+      gap: 8px;
+      padding: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+    }
+    .role button {
+      min-height: 34px;
+      padding: 0 12px;
+      color: var(--muted);
+      background: transparent;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+    .role button.active { color: white; background: var(--fg); }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, .04);
+    }
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, color-mix(in oklch, var(--accent-soft) 82%, white), white 72%);
+      border-color: color-mix(in oklch, var(--accent) 18%, var(--border));
+    }
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .eyebrow {
+      color: var(--accent-dark);
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .hero-title {
+      margin-top: 6px;
+      font-size: clamp(28px, 9vw, 42px);
+      line-height: 1;
+      letter-spacing: 0;
+      font-weight: 780;
+    }
+    .hero-title small {
+      margin-left: 4px;
+      font-size: 16px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .pillbox {
+      width: 76px;
+      min-width: 76px;
+      height: 62px;
+      border-radius: 18px;
+      background: var(--surface);
+      border: 1px solid color-mix(in oklch, var(--accent) 25%, var(--border));
+      position: relative;
+      box-shadow: inset 0 -10px 0 color-mix(in oklch, var(--accent-soft) 60%, white);
+    }
+    .pillbox::before {
+      content: "";
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      top: 12px;
+      height: 1px;
+      background: var(--border);
+      box-shadow: 0 18px 0 var(--border);
+    }
+    .pillbox::after {
+      content: "";
+      position: absolute;
+      top: 8px;
+      bottom: 8px;
+      left: 50%;
+      width: 1px;
+      background: var(--border);
+    }
+    .hero-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .btn {
+      min-height: 48px;
+      padding: 0 16px;
+      border-radius: 999px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform .18s ease, background .18s ease, opacity .18s ease;
+    }
+    .btn:active { transform: scale(.98); }
+    .primary { color: white; background: var(--accent); }
+    .secondary { color: var(--fg); background: color-mix(in oklch, var(--border) 42%, white); }
+    .ghost { color: var(--muted); background: transparent; }
+    .section-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin: 4px 2px 10px;
+    }
+    .section-title h2 { font: 760 18px/1.2 var(--font-display); }
+    .section-title span { color: var(--muted); font-size: 13px; }
+    .dose-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 13px;
+      align-items: center;
+    }
+    .time {
+      width: 70px;
+      height: 70px;
+      border-radius: 20px;
+      display: grid;
+      place-items: center;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font: 800 20px/1 var(--font-mono);
+    }
+    .dose-main h3 { font-size: 18px; line-height: 1.25; }
+    .dose-main p { margin-top: 5px; color: var(--muted); font-size: 14px; }
+    .take-btn {
+      grid-column: 1 / -1;
+      width: 100%;
+      margin-top: 8px;
+      min-height: 54px;
+      border-radius: 16px;
+      color: white;
+      background: var(--accent);
+      font-size: 17px;
+      font-weight: 760;
+    }
+    .med-list {
+      display: grid;
+      gap: 10px;
+    }
+    .med-row {
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      min-height: 76px;
+      padding: 12px;
+      border-radius: 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .med-row.missed { background: var(--danger-soft); border-color: color-mix(in oklch, var(--danger) 18%, var(--border)); }
+    .med-row.done { background: var(--accent-soft); }
+    .icon-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: color-mix(in oklch, var(--border) 40%, white);
+      color: var(--muted);
+    }
+    .missed .icon-circle { color: var(--danger); background: white; }
+    .done .icon-circle { color: white; background: var(--accent); }
+    .med-name { font-weight: 720; }
+    .med-desc { margin-top: 4px; color: var(--muted); font-size: 13px; }
+    .chip {
+      white-space: nowrap;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      background: color-mix(in oklch, var(--border) 45%, white);
+    }
+    .chip.warn { color: var(--danger); background: white; }
+    .chip.ok { color: var(--accent-dark); background: white; }
+    .message {
+      display: grid;
+      grid-template-columns: 44px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      background: color-mix(in oklch, var(--blue-soft) 72%, white);
+    }
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: var(--health-blue);
+      color: white;
+      font-weight: 800;
+    }
+    .message strong { display: block; font-size: 15px; }
+    .message p { margin-top: 3px; color: var(--muted); font-size: 14px; }
+    .mini-btn {
+      min-height: 36px;
+      padding: 0 13px;
+      border-radius: 999px;
+      color: var(--health-blue);
+      background: white;
+      font-weight: 700;
+    }
+    .panel { display: none; }
+    .panel.active { display: grid; gap: 12px; }
+
+    .bp-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 13px;
+      background: var(--surface);
+    }
+    .metric label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .metric strong {
+      display: block;
+      margin-top: 6px;
+      font: 800 26px/1 var(--font-mono);
+    }
+    .metric small { color: var(--muted); font-size: 12px; }
+    .chart {
+      height: 150px;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      align-items: end;
+      gap: 8px;
+      padding-top: 16px;
+    }
+    .bar {
+      display: grid;
+      align-items: end;
+      gap: 4px;
+      height: 100%;
+    }
+    .bar span {
+      display: block;
+      min-height: 20px;
+      border-radius: 999px 999px 6px 6px;
+      background: var(--health-blue);
+    }
+    .bar i {
+      color: var(--muted);
+      font-style: normal;
+      font-size: 11px;
+      text-align: center;
+    }
+    .periods {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      padding: 5px;
+      border-radius: 999px;
+      background: color-mix(in oklch, var(--border) 48%, white);
+    }
+    .periods button {
+      min-height: 36px;
+      border-radius: 999px;
+      color: var(--muted);
+      background: transparent;
+      font-weight: 700;
+    }
+    .periods button.active {
+      background: var(--surface);
+      color: var(--fg);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, .08);
+    }
+    .record-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--blue-soft);
+      border-color: color-mix(in oklch, var(--health-blue) 18%, var(--border));
+    }
+    .record-card strong { font-size: 18px; }
+    .record-card p { margin-top: 3px; color: var(--muted); font-size: 13px; }
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      width: min(420px, calc(100% - 28px));
+      height: 64px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 6px;
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      background: color-mix(in oklch, var(--surface) 92%, transparent);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      z-index: 10;
+    }
+    .nav-btn {
+      display: grid;
+      place-items: center;
+      gap: 2px;
+      border-radius: 18px;
+      color: var(--muted);
+      background: transparent;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .nav-btn svg { width: 20px; height: 20px; }
+    .nav-btn.active { color: var(--accent-dark); background: var(--accent-soft); }
+    .desktop-side { display: none; }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: end center;
+      background: rgba(15, 23, 42, .32);
+      padding: 16px;
+      z-index: 30;
+    }
+    .modal.open { display: grid; }
+    .sheet {
+      width: min(420px, 100%);
+      background: var(--surface);
+      border-radius: 26px 26px 18px 18px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+    .sheet-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .sheet h2 { font-size: 20px; }
+    .camera-box {
+      height: 180px;
+      border: 1px dashed color-mix(in oklch, var(--health-blue) 45%, var(--border));
+      border-radius: 20px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      background: var(--blue-soft);
+      margin-bottom: 14px;
+    }
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .field label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 12px; }
+    .field input {
+      width: 100%;
+      min-height: 48px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 0 10px;
+      text-align: center;
+      font: 760 18px/1 var(--font-mono);
+      outline: none;
+    }
+    .sheet-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    @media (min-width: 860px) {
+      body { padding: 34px; }
+      .app {
+        grid-template-columns: minmax(390px, 440px) 1fr;
+        gap: 24px;
+        min-height: calc(100vh - 68px);
+        border-radius: 34px;
+        padding: 18px;
+        box-shadow: var(--shadow);
+        background: color-mix(in oklch, var(--bg) 70%, white);
+      }
+      .shell {
+        min-height: auto;
+        max-height: calc(100vh - 104px);
+        overflow: auto;
+        border-radius: 28px;
+        background: var(--bg);
+        padding: 16px 14px 88px;
+        border: 1px solid var(--border);
+      }
+      .desktop-side {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        gap: 14px;
+        padding: 10px 8px 10px 0;
+      }
+      .wide-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 20px;
+      }
+      .wide-card h2 { font-size: 24px; }
+      .wide-grid {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: 1.1fr .9fr;
+        gap: 14px;
+      }
+      .care-list { display: grid; gap: 10px; margin-top: 14px; }
+      .care-item {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+      }
+      .bottom-nav {
+        left: calc(50% - 178px);
+      }
+      .modal { place-items: center; }
+      .sheet { border-radius: 26px; }
+    }
+
+    @media (max-width: 380px) {
+      .hero-actions, .bp-summary, .sheet-actions { grid-template-columns: 1fr; }
+      .role button { padding: 0 9px; }
+      .med-row { grid-template-columns: 42px 1fr; }
+      .med-row .chip { grid-column: 2; width: fit-content; }
+      .message { grid-template-columns: 42px 1fr; }
+      .message .mini-btn { grid-column: 2; width: fit-content; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <main class="shell" aria-label="智能药盒首页">
+      <div class="statusbar" aria-hidden="true">
+        <span>09:41</span>
+        <span class="capsule"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+      </div>
+
+      <header class="appbar">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="4" y="5" width="16" height="14" rx="4" stroke="currentColor" stroke-width="2"/>
+              <path d="M8 12h8M12 8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1>智能药盒</h1>
+            <p class="sub">今天 6/8 · 老人端首页</p>
+          </div>
+        </div>
+        <div class="role" aria-label="角色切换">
+          <button class="active" type="button">自己用</button>
+          <button type="button">家人管</button>
+        </div>
+      </header>
+
+      <section class="panel active" id="homePanel" data-od-id="home-main">
+        <div class="card hero-card" data-od-id="streak-summary">
+          <div class="hero-top">
+            <div>
+              <p class="eyebrow">连续按时服药</p>
+              <p class="hero-title"><span id="streakCount">23</span><small>天</small></p>
+              <p class="sub">二甲双胍缓释片将在 12:00 提醒，建议随餐服用。</p>
+            </div>
+            <div class="pillbox" aria-label="药盒示意"></div>
+          </div>
+          <div class="hero-actions">
+            <button class="btn primary" type="button" id="showReminder">查看提醒</button>
+            <button class="btn secondary" type="button" id="goMeds">我的药盒</button>
+          </div>
+        </div>
+
+        <div data-od-id="next-dose">
+          <div class="section-title">
+            <h2>下一次服药</h2>
+            <span id="nextStatus">待确认</span>
+          </div>
+          <article class="card dose-card">
+            <div class="time">12:00</div>
+            <div class="dose-main">
+              <h3>二甲双胍缓释片</h3>
+              <p>1片 · 随餐服用</p>
+            </div>
+            <button class="take-btn" type="button" id="takeMed">我已服用</button>
+          </article>
+        </div>
+
+        <div data-od-id="medication-list">
+          <div class="section-title">
+            <h2>今日用药</h2>
+            <span>3 项</span>
+          </div>
+          <div class="med-list">
+            <article class="med-row missed" id="missedRow">
+              <div class="icon-circle" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/></svg>
+              </div>
+              <div>
+                <div class="med-name">苯磺酸氨氯地平片</div>
+                <div class="med-desc">08:00 · 1片 · 餐后服用</div>
+              </div>
+              <button class="chip warn" type="button" id="makeupMed">补服</button>
+            </article>
+            <article class="med-row">
+              <div class="icon-circle" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/></svg>
+              </div>
+              <div>
+                <div class="med-name">二甲双胍缓释片</div>
+                <div class="med-desc">12:00 · 1片 · 随餐服用</div>
+              </div>
+              <span class="chip">待服用</span>
+            </article>
+            <article class="med-row">
+              <div class="icon-circle" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/></svg>
+              </div>
+              <div>
+                <div class="med-name">阿托伐他汀钙片</div>
+                <div class="med-desc">20:00 · 1片 · 睡前服用</div>
+              </div>
+              <span class="chip">待服用</span>
+            </article>
+          </div>
+        </div>
+
+        <article class="card message" id="encouragement" data-od-id="family-message">
+          <div class="avatar">丽</div>
+          <div>
+            <strong>女儿小丽 · 21:08</strong>
+            <p>妈妈辛苦了！今天也记得按时吃药。</p>
+          </div>
+          <button class="mini-btn" type="button" id="dismissMessage">好的</button>
+        </article>
+      </section>
+
+      <section class="panel" id="bpPanel" data-od-id="blood-pressure">
+        <div class="section-title">
+          <h2>血压记录</h2>
+          <span id="periodLabel">本周 6/2-6/8</span>
+        </div>
+        <div class="periods" aria-label="统计周期">
+          <button type="button" data-period="天">天</button>
+          <button type="button" class="active" data-period="周">周</button>
+          <button type="button" data-period="月">月</button>
+          <button type="button" data-period="年">年</button>
+        </div>
+        <div class="bp-summary">
+          <div class="metric">
+            <label>最近血压</label>
+            <strong>138/85</strong>
+            <small>mmHg · 06-08 08:30</small>
+          </div>
+          <div class="metric">
+            <label>心率</label>
+            <strong>72</strong>
+            <small>次/分 · 正常范围</small>
+          </div>
+        </div>
+        <div class="card" data-od-id="bp-chart">
+          <div class="section-title">
+            <h2>趋势</h2>
+            <span>高压</span>
+          </div>
+          <div class="chart" aria-label="血压趋势图">
+            <div class="bar"><span style="height:62%"></span><i>6/2</i></div>
+            <div class="bar"><span style="height:71%"></span><i>6/3</i></div>
+            <div class="bar"><span style="height:58%"></span><i>6/4</i></div>
+            <div class="bar"><span style="height:66%"></span><i>6/5</i></div>
+            <div class="bar"><span style="height:54%"></span><i>6/6</i></div>
+            <div class="bar"><span style="height:76%; background:var(--warn)"></span><i>6/7</i></div>
+            <div class="bar"><span style="height:64%"></span><i>6/8</i></div>
+          </div>
+        </div>
+        <button class="card record-card" type="button" id="openRecord" data-od-id="photo-record">
+          <div>
+            <strong>拍照记录</strong>
+            <p>对着血压计屏幕拍一下，数值可手动修改。</p>
+          </div>
+          <span class="chip" style="color:var(--health-blue);background:white;">开始</span>
+        </button>
+      </section>
+    </main>
+
+    <aside class="desktop-side" aria-label="桌面端健康看板">
+      <div class="wide-card" data-od-id="desktop-overview">
+        <p class="eyebrow">家人协同看护</p>
+        <h2>用药、血压与提醒集中在一个主界面里。</h2>
+        <p class="sub" style="margin-top:8px;">桌面端保留小程序信息层级，同时展开成双栏看板，适合子女远程查看老人今日状态。</p>
+        <div class="wide-grid">
+          <div class="metric">
+            <label>今日服药进度</label>
+            <strong id="desktopProgress">0/3</strong>
+            <small>漏服 1 项 · 待服 2 项</small>
+          </div>
+          <div class="metric">
+            <label>健康关注</label>
+            <strong>142</strong>
+            <small>昨日高压偏高，建议复测</small>
+          </div>
+        </div>
+      </div>
+      <div class="wide-card" data-od-id="desktop-care-list">
+        <div class="section-title">
+          <h2>最近动态</h2>
+          <span>同步中</span>
+        </div>
+        <div class="care-list">
+          <div class="care-item">
+            <div class="icon-circle" style="color:var(--danger);background:var(--danger-soft);">!</div>
+            <div><strong>08:00 药品漏服</strong><p class="sub">苯磺酸氨氯地平片 · 餐后服用</p></div>
+            <span class="chip warn">需处理</span>
+          </div>
+          <div class="care-item">
+            <div class="icon-circle" style="color:var(--health-blue);background:var(--blue-soft);">BP</div>
+            <div><strong>06-08 08:30 血压记录</strong><p class="sub">138/85 mmHg · 心率 72</p></div>
+            <span class="chip">已记录</span>
+          </div>
+          <div class="care-item">
+            <div class="icon-circle" style="color:var(--accent-dark);background:var(--accent-soft);">丽</div>
+            <div><strong>女儿小丽留言</strong><p class="sub">妈妈辛苦了！今天也记得按时吃药。</p></div>
+            <span class="chip ok">已送达</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <nav class="bottom-nav" aria-label="主导航" data-od-id="bottom-nav">
+    <button class="nav-btn active" type="button" data-tab="home">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 5l8 6.5V20H6v-6h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      首页
+    </button>
+    <button class="nav-btn" type="button" data-tab="bp">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 14h4l2-6 4 10 2-4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      血压
+    </button>
+    <button class="nav-btn" type="button" data-tab="mine">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M5 20c1.4-3 3.7-4.5 7-4.5s5.6 1.5 7 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      我的
+    </button>
+  </nav>
+
+  <div class="modal" id="recordModal" role="dialog" aria-modal="true" aria-label="拍照记录血压">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2>拍照记录</h2>
+        <button class="btn ghost" type="button" id="closeRecord">关闭</button>
+      </div>
+      <div class="camera-box" id="cameraBox">对准血压计屏幕</div>
+      <div class="input-grid">
+        <div class="field"><label>高压</label><input id="sysInput" inputmode="numeric" value="138"></div>
+        <div class="field"><label>低压</label><input id="diaInput" inputmode="numeric" value="85"></div>
+        <div class="field"><label>心率</label><input id="hrInput" inputmode="numeric" value="72"></div>
+      </div>
+      <div class="sheet-actions">
+        <button class="btn secondary" type="button" id="retake">重新拍照</button>
+        <button class="btn primary" type="button" id="saveRecord">保存记录</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll(".nav-btn");
+    const homePanel = document.getElementById("homePanel");
+    const bpPanel = document.getElementById("bpPanel");
+    const takeMed = document.getElementById("takeMed");
+    const nextStatus = document.getElementById("nextStatus");
+    const desktopProgress = document.getElementById("desktopProgress");
+    const missedRow = document.getElementById("missedRow");
+    const makeupMed = document.getElementById("makeupMed");
+    const message = document.getElementById("encouragement");
+    const modal = document.getElementById("recordModal");
+    const cameraBox = document.getElementById("cameraBox");
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const target = tab.dataset.tab;
+        tabs.forEach((item) => item.classList.toggle("active", item === tab));
+        homePanel.classList.toggle("active", target !== "bp");
+        bpPanel.classList.toggle("active", target === "bp");
+      });
+    });
+
+    takeMed.addEventListener("click", () => {
+      takeMed.textContent = "已记录服药";
+      takeMed.style.background = "var(--fg)";
+      nextStatus.textContent = "已服用";
+      desktopProgress.textContent = "1/3";
+    });
+
+    makeupMed.addEventListener("click", () => {
+      missedRow.classList.remove("missed");
+      missedRow.classList.add("done");
+      makeupMed.textContent = "已补服";
+      makeupMed.className = "chip ok";
+    });
+
+    document.getElementById("dismissMessage").addEventListener("click", () => {
+      message.style.display = "none";
+    });
+
+    document.getElementById("showReminder").addEventListener("click", () => {
+      document.querySelector('[data-tab="bp"]').click();
+    });
+
+    document.getElementById("goMeds").addEventListener("click", () => {
+      window.scrollTo({ top: 240, behavior: "smooth" });
+    });
+
+    document.querySelectorAll(".periods button").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".periods button").forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        const labels = { "天": "今天 6/8", "周": "本周 6/2-6/8", "月": "6月", "年": "2026年" };
+        document.getElementById("periodLabel").textContent = labels[button.dataset.period];
+      });
+    });
+
+    document.getElementById("openRecord").addEventListener("click", () => {
+      modal.classList.add("open");
+      cameraBox.textContent = "已识别，可修改数值";
+    });
+    document.getElementById("closeRecord").addEventListener("click", () => modal.classList.remove("open"));
+    document.getElementById("retake").addEventListener("click", () => {
+      cameraBox.textContent = "重新对准血压计屏幕";
+      document.getElementById("sysInput").value = "";
+      document.getElementById("diaInput").value = "";
+      document.getElementById("hrInput").value = "";
+    });
+    document.getElementById("saveRecord").addEventListener("click", () => {
+      const sys = document.getElementById("sysInput").value || "138";
+      const dia = document.getElementById("diaInput").value || "85";
+      modal.classList.remove("open");
+      document.querySelector(".metric strong").textContent = `${sys}/${dia}`;
+    });
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) modal.classList.remove("open");
+    });
+  </script>
+</body>
+</html>

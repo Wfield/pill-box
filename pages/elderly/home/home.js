@@ -13,6 +13,12 @@ Page({
     ],
     // Blood Pressure
     bpPeriod: 'week',
+    bpPeriods: [
+      { key: 'day', label: '天' },
+      { key: 'week', label: '周' },
+      { key: 'month', label: '月' },
+      { key: 'year', label: '年' },
+    ],
     bpPeriodOffset: 0,
     bpData: [],
     bpRecordStep: 0,
@@ -86,7 +92,7 @@ Page({
   refreshDerivedData() {
     const meds = this.data.medications
     const nextMed = meds.find(m => m.status === 'pending') || null
-    const pendingMeds = meds.filter(m => m.status === 'pending' && m.id !== (nextMed && nextMed.id))
+    const pendingMeds = meds.filter(m => m.status === 'pending')
     const takenMeds = meds.filter(m => m.status === 'taken' || m.status === 'late')
     const missedMeds = meds.filter(m => m.status === 'missed')
     this.setData({ nextMed, pendingMeds, takenMeds, missedMeds })
@@ -115,23 +121,29 @@ Page({
 
   refreshBPData() {
     const data = mockData.generateBPData(this.data.bpPeriod, this.data.bpPeriodOffset)
+    const maxSys = Math.max(...data.map(d => d.sys), 140)
+    const maxDia = Math.max(...data.map(d => d.dia), 90)
+    data.forEach(d => {
+      d.sysHeight = Math.round((d.sys / maxSys) * 100)
+      d.diaHeight = Math.round((d.dia / maxDia) * 100)
+    })
     this.updatePeriodLabel()
     this.setData({
       bpData: data,
       bpLines: [
-        { key: 'sys', color: '#E8924A', abnormalCheck: v => v >= 140 },
-        { key: 'dia', color: '#7C9CB5', abnormalCheck: v => v >= 90 },
+        { key: 'sys', color: '#22C57E', abnormalCheck: v => v >= 140 },
+        { key: 'dia', color: '#5B9BD5', abnormalCheck: v => v >= 90 },
       ],
       bpWarnLines: [
-        { value: 140, color: '#DC2626', label: '高压警戒' },
-        { value: 90, color: '#7C9CB5', label: '低压警戒' },
+        { value: 140, color: '#DC3545', label: '高压警戒' },
+        { value: 90, color: '#5B9BD5', label: '低压警戒' },
       ],
       hrLines: [
-        { key: 'hr', color: '#C99A8C', abnormalCheck: v => v < 60 || v > 100 },
+        { key: 'hr', color: '#5B9BD5', abnormalCheck: v => v < 60 || v > 100 },
       ],
       hrWarnLines: [
-        { value: 100, color: '#A8A29E', label: '上限' },
-        { value: 60, color: '#A8A29E', label: '下限' },
+        { value: 100, color: '#7D848C', label: '上限' },
+        { value: 60, color: '#7D848C', label: '下限' },
       ],
     })
   },

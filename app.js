@@ -1,6 +1,6 @@
 const globalData = {
   userInfo: null,
-  role: null,
+  role: 'elderly',
   elders: [],
   medications: [],
   elderlyTab: null,

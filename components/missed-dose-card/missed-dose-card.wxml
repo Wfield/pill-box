@@ -1,7 +1,7 @@
 <view class="card-container">
   <view class="card-header">
     <view class="time-label">
-      <icon name="clock" size="40" color="#A8A29E" stroke="1.8" />
+      <icon name="clock" size="40" color="#7D848C" stroke="1.8" />
       <text>{{med.time}} 的药</text>
     </view>
     <text class="missed-badge">超时未服</text>
@@ -18,7 +18,7 @@
   </button>
   <button wx:else class="makeup-btn" bindtap="handleMakeUp">
     <view class="btn-content">
-      <icon name="check" size="48" color="#44403C" stroke="2.5" />
+      <icon name="check" size="48" color="#2D3238" stroke="2.5" />
       <text>我吃了</text>
     </view>
   </button>

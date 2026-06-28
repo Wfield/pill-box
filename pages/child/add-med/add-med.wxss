@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #FAF6EE;
+  background: #F7F8F9;
 }
 
 .top-bar {
@@ -11,45 +11,52 @@
   justify-content: space-between;
   padding: 24rpx 40rpx;
   padding-top: 80rpx;
-  background: #FDFBF7;
-  border-bottom: 2rpx solid #F3EBDD;
+  background: #FFFFFF;
+  border-bottom: 2rpx solid #E4E6E9;
+  box-shadow: 0 4rpx 18rpx rgba(15, 23, 42, 0.05);
 }
 
 .cancel-btn {
   font-size: 28rpx;
-  color: #D97D38;
+  color: #0D9E5F;
   background: none;
   border: none;
   padding: 0;
   line-height: 1.5;
+  min-width: 64rpx;
+  min-height: 64rpx;
 }
 
 .page-title {
   font-size: 32rpx;
   font-weight: 700;
-  color: #292524;
+  color: #2D3238;
 }
 
 .save-btn {
   font-size: 28rpx;
   font-weight: 700;
-  color: #D97D38;
+  color: #0D9E5F;
   background: none;
   border: none;
   padding: 0;
   line-height: 1.5;
+  min-width: 64rpx;
+  min-height: 64rpx;
 }
 
 .scroll-area {
   flex: 1;
   padding: 32rpx;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
 }
 
 .form-card {
-  background: #FDFBF7;
-  border-radius: 20rpx;
-  padding: 28rpx;
-  border: 2rpx solid #F3EBDD;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  padding: 32rpx;
+  border: 2rpx solid #E4E6E9;
+  box-shadow: 0 6rpx 20rpx rgba(15, 23, 42, 0.06);
 }
 
 .photo-upload {
@@ -61,8 +68,9 @@
   align-items: center;
   gap: 12rpx;
   font-size: 24rpx;
-  color: #A8A29E;
+  color: #7D848C;
   margin-bottom: 32rpx;
+  background: #F7F8F9;
 }
 
 .form-group {
@@ -70,25 +78,27 @@
 }
 
 .form-label {
-  font-size: 24rpx;
-  color: #78716C;
+  font-size: 26rpx;
+  color: #7D848C;
   display: block;
   margin-bottom: 8rpx;
 }
 
 .form-input {
   width: 100%;
-  padding: 16rpx;
-  border: 2rpx solid #D6D3D1;
+  min-height: 88rpx;
+  padding: 20rpx 22rpx;
+  border: 2rpx solid #E7E5E4;
   border-radius: 16rpx;
   background: #FFFFFF;
   font-size: 28rpx;
-  color: #292524;
+  color: #2D3238;
 }
 
 .form-row {
   display: flex;
   gap: 20rpx;
+  align-items: flex-start;
 }
 
 .form-group.half {
@@ -98,18 +108,20 @@
 .dose-input {
   display: flex;
   align-items: center;
-  border: 2rpx solid #D6D3D1;
+  min-height: 88rpx;
+  border: 2rpx solid #E7E5E4;
   border-radius: 16rpx;
   overflow: hidden;
   background: #FFFFFF;
 }
 
 .picker-trigger {
-  padding: 16rpx 20rpx;
-  background: #FAF6EE;
+  min-height: 88rpx;
+  padding: 20rpx 22rpx;
+  background: #F7F8F9;
   border-left: 2rpx solid #D6D3D1;
   font-size: 24rpx;
-  color: #44403C;
+  color: #2D3238;
   display: block;
 }
 
@@ -122,10 +134,11 @@
 
 .time-tag {
   padding: 12rpx 24rpx;
-  background: rgba(232, 146, 74, 0.2);
-  color: #D97D38;
+  background: rgba(34, 197, 126, 0.2);
+  color: #0D9E5F;
   border-radius: 9999rpx;
   font-size: 24rpx;
+  line-height: 1.5;
 }
 
 .add-time-btn {
@@ -133,7 +146,8 @@
   border: 4rpx dashed #D6D3D1;
   border-radius: 9999rpx;
   font-size: 24rpx;
-  color: #A8A29E;
+  color: #7D848C;
   background: none;
   line-height: 1.5;
+  min-height: 64rpx;
 }

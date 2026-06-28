@@ -1,6 +1,5 @@
 {
   "pages": [
-    "pages/index/index",
     "pages/elderly/home/home",
     "pages/elderly/meds/meds",
     "pages/elderly/photo-add/photo-add",
@@ -8,7 +7,8 @@
     "pages/child/overview/overview",
     "pages/child/elder-detail/elder-detail",
     "pages/child/bind-flow/bind-flow",
-    "pages/child/add-med/add-med"
+    "pages/child/add-med/add-med",
+    "pages/index/index"
   ],
   "window": {
     "navigationBarBackgroundColor": "#FDFBF7",

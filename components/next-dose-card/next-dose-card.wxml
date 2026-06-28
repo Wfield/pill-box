@@ -13,7 +13,7 @@
       <text>已记录</text>
     </view>
     <view wx:else class="btn-content">
-      <icon name="check" size="56" color="#E8924A" stroke="2.5" />
+      <icon name="check" size="56" color="#22C57E" stroke="2.5" />
       <text>我吃了</text>
     </view>
   </button>

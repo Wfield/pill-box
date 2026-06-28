@@ -95,7 +95,7 @@ Component({
           const isAbnormal = l.abnormalCheck ? l.abnormalCheck(d[l.key]) : false
           ctx.beginPath()
           ctx.arc(px, py, isAbnormal ? 7 : 5, 0, 2 * Math.PI)
-          ctx.setFillStyle(isAbnormal ? '#E11D48' : l.color)
+          ctx.setFillStyle(isAbnormal ? '#DC3545' : l.color)
           ctx.fill()
         })
       })
@@ -103,7 +103,7 @@ Component({
       data.forEach((d, i) => {
         const px = x(i)
         ctx.setFontSize(18)
-        ctx.setFillStyle('#A8A29E')
+        ctx.setFillStyle('#7D848C')
         ctx.setTextAlign('center')
         ctx.fillText(d.label, px, H - 12)
       })

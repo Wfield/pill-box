@@ -10,7 +10,7 @@ Component({
   methods: {
     handleTake() {
       if (this.data.animating) return
-      const colors = ['#E8924A', '#F0A868', '#F472B6', '#FBBF24', '#34D399', '#60A5FA', '#A78BFA']
+      const colors = ['#22C57E', '#22C57E', '#F472B6', '#FBBF24', '#34D399', '#60A5FA', '#A78BFA']
       const pieces = Array.from({ length: 28 }, (_, i) => ({
         id: i,
         color: colors[i % colors.length],

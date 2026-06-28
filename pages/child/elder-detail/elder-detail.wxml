@@ -9,7 +9,7 @@
     <view class="modal-body">
       <view class="form-section">
         <view class="photo-upload">
-          <icon name="camera" size="64" color="#A8A29E" stroke="1.8" />
+          <icon name="camera" size="64" color="#7D848C" stroke="1.8" />
           <text>拍照识别药品</text>
         </view>
         <view class="form-group">
@@ -51,7 +51,7 @@
 <view class="page-container">
   <view class="top-bar">
     <button class="back-btn" bindtap="goBack">
-      <icon name="chevronLeft" size="48" color="#78716C" stroke="2.5" />
+      <icon name="chevronLeft" size="48" color="#7D848C" stroke="2.5" />
     </button>
     <text class="page-title">{{pageTitle}}</text>
   </view>
@@ -61,14 +61,14 @@
     <scroll-view class="scroll-area" scroll-y>
       <view class="notification-card">
         <view class="notification-header">
-          <icon name="bell" size="32" color="#E8924A" stroke="1.8" />
+          <icon name="bell" size="32" color="#22C57E" stroke="1.8" />
           <text class="notification-title">通知</text>
         </view>
         <view class="notification-body">
           <view wx:for="{{parentMeds}}" wx:for-item="m" wx:key="id">
             <view wx:if="{{m.remaining <= 10}}" class="notification-item">
               <view class="notif-icon warn">
-                <icon name="warn" size="32" color="#E8924A" stroke="1.8" />
+                <icon name="warn" size="32" color="#22C57E" stroke="1.8" />
               </view>
               <view class="notif-text">
                 <text class="notif-title-text">药品余量不足</text>
@@ -78,7 +78,7 @@
           </view>
           <view class="notification-item">
             <view class="notif-icon photo">
-              <icon name="cameraLg" size="32" color="#E8924A" stroke="1.8" />
+              <icon name="cameraLg" size="32" color="#22C57E" stroke="1.8" />
             </view>
             <view class="notif-text">
               <text class="notif-title-text">妈妈拍了一个新药 · 待录入</text>
@@ -215,7 +215,7 @@
       <scroll-view class="scroll-area" scroll-y>
         <button class="add-med-btn" bindtap="showAddMed">
           <view class="add-med-btn-content">
-            <icon name="plus" size="40" color="#E8924A" stroke="2.5" />
+            <icon name="plus" size="40" color="#22C57E" stroke="2.5" />
             <text>添加新药品</text>
           </view>
         </button>
@@ -224,7 +224,7 @@
           <view class="manage-med-top">
             <view class="manage-med-left">
               <view class="manage-med-icon {{m.remaining <= 10 ? 'warn-bg' : ''}}">
-                <icon name="pill" size="56" color="#E8924A" stroke="1.8" />
+                <icon name="pill" size="56" color="#22C57E" stroke="1.8" />
               </view>
               <view class="manage-med-info">
                 <text class="manage-med-name">{{m.name}}</text>
@@ -233,12 +233,12 @@
               </view>
             </view>
             <button class="edit-btn" data-id="{{m.id}}" bindtap="startEditMed">
-              <icon name="edit" size="40" color="#78716C" stroke="1.8" />
+              <icon name="edit" size="40" color="#7D848C" stroke="1.8" />
             </button>
           </view>
           <view class="manage-med-bottom">
             <view class="{{m.remaining <= 10 ? 'low-stock-text' : 'stock-text'}}">
-              <icon wx:if="{{m.remaining <= 10}}" name="warn" size="28" color="#E11D48" stroke="1.8" />
+              <icon wx:if="{{m.remaining <= 10}}" name="warn" size="28" color="#DC3545" stroke="1.8" />
               <text>{{m.remaining <= 10 ? '待补药 · 剩余 ' + m.remaining + ' 片（约 ' + m.remaining + ' 天）' : '余量 ' + m.remaining + ' 天'}}</text>
             </view>
             <button class="restock-btn {{m.remaining <= 10 ? 'primary' : 'secondary'}}">已补药</button>
@@ -273,8 +273,8 @@
           <view class="chart-header">
             <text class="chart-title">血压</text>
             <view class="chart-legend">
-              <view class="legend-item"><view class="legend-dot" style="background:#E8924A;"></view><text>高压</text></view>
-              <view class="legend-item"><view class="legend-dot" style="background:#7C9CB5;"></view><text>低压</text></view>
+              <view class="legend-item"><view class="legend-dot" style="background:#22C57E;"></view><text>高压</text></view>
+              <view class="legend-item"><view class="legend-dot" style="background:#5B9BD5;"></view><text>低压</text></view>
             </view>
           </view>
           <line-trend data="{{bpData}}" lines="{{bpLines}}" height="150" warnLines="{{bpWarnLines}}" />
@@ -283,8 +283,8 @@
           <view class="chart-header">
             <text class="chart-title">心率</text>
             <view class="chart-legend">
-              <view class="legend-item"><view class="legend-dot" style="background:#C99A8C;"></view><text>心率</text></view>
-              <view class="legend-item"><view class="legend-dot" style="background:#A8A29E;"></view><text>正常 60-100</text></view>
+              <view class="legend-item"><view class="legend-dot" style="background:#5B9BD5;"></view><text>心率</text></view>
+              <view class="legend-item"><view class="legend-dot" style="background:#7D848C;"></view><text>正常 60-100</text></view>
             </view>
           </view>
           <line-trend data="{{bpData}}" lines="{{hrLines}}" height="130" warnLines="{{hrWarnLines}}" />
@@ -308,8 +308,8 @@
 
   <!-- Bottom Nav -->
   <view class="bottom-nav">
-    <nav-item style="flex:1;min-width:0;display:block;" icon="home" label="首页" active="{{currentTab === 'elderHome'}}" activeColor="#E8924A" bind:tap="switchTab" data-tab="elderHome" />
-    <nav-item style="flex:1;min-width:0;display:block;" icon="pill" label="药品" active="{{currentTab === 'elderMeds'}}" activeColor="#E8924A" bind:tap="switchTab" data-tab="elderMeds" />
-    <nav-item style="flex:1;min-width:0;display:block;" icon="chart" label="血压心率" active="{{currentTab === 'elderBp'}}" activeColor="#E8924A" bind:tap="switchTab" data-tab="elderBp" />
+    <nav-item style="flex:1;min-width:0;display:block;" icon="home" label="首页" active="{{currentTab === 'elderHome'}}" activeColor="#22C57E" bind:tap="switchTab" data-tab="elderHome" />
+    <nav-item style="flex:1;min-width:0;display:block;" icon="pill" label="药品" active="{{currentTab === 'elderMeds'}}" activeColor="#22C57E" bind:tap="switchTab" data-tab="elderMeds" />
+    <nav-item style="flex:1;min-width:0;display:block;" icon="chart" label="血压心率" active="{{currentTab === 'elderBp'}}" activeColor="#22C57E" bind:tap="switchTab" data-tab="elderBp" />
   </view>
 </view>

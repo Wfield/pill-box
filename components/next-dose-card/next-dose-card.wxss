@@ -2,10 +2,10 @@
   position: relative;
   border-radius: 28rpx;
   padding: 40rpx;
-  background-color: #E8924A;
+  background-color: #22C57E;
   color: #FFFFFF;
   overflow: hidden;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
+  box-shadow: 0 10rpx 28rpx rgba(13, 158, 95, 0.22);
 }
 
 .confetti-piece {
@@ -43,6 +43,7 @@
   font-size: 32rpx;
   line-height: 1.35;
   display: block;
+  word-break: break-all;
 }
 
 .note-text {
@@ -51,6 +52,7 @@
   opacity: 0.9;
   flex-shrink: 0;
   max-width: 180rpx;
+  word-break: break-all;
 }
 
 .take-btn {
@@ -73,11 +75,12 @@
 
 .take-btn.ready {
   background-color: #FFFFFF;
-  color: #D97D38;
+  color: #0D9E5F;
+  box-shadow: 0 6rpx 18rpx rgba(41, 37, 36, 0.08);
 }
 
 .take-btn.done {
-  background-color: #22C55E;
+  background-color: #22C57E;
   color: #FFFFFF;
 }
 

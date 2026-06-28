@@ -228,19 +228,19 @@ Page({
       bpData: data,
       periodLabel: mockData.getPeriodLabel(this.data.bpPeriod, this.data.bpPeriodOffset),
       bpLines: [
-        { key: 'sys', color: '#E8924A', abnormalCheck: v => v >= 140 },
-        { key: 'dia', color: '#7C9CB5', abnormalCheck: v => v >= 90 },
+        { key: 'sys', color: '#22C57E', abnormalCheck: v => v >= 140 },
+        { key: 'dia', color: '#5B9BD5', abnormalCheck: v => v >= 90 },
       ],
       bpWarnLines: [
-        { value: 140, color: '#DC2626', label: '高压警戒' },
-        { value: 90, color: '#7C9CB5', label: '低压警戒' },
+        { value: 140, color: '#DC3545', label: '高压警戒' },
+        { value: 90, color: '#5B9BD5', label: '低压警戒' },
       ],
       hrLines: [
-        { key: 'hr', color: '#C99A8C', abnormalCheck: v => v < 60 || v > 100 },
+        { key: 'hr', color: '#5B9BD5', abnormalCheck: v => v < 60 || v > 100 },
       ],
       hrWarnLines: [
-        { value: 100, color: '#A8A29E', label: '上限' },
-        { value: 60, color: '#A8A29E', label: '下限' },
+        { value: 100, color: '#7D848C', label: '上限' },
+        { value: 60, color: '#7D848C', label: '下限' },
       ],
       recentRecords: data.slice().reverse().slice(0, 7),
     })

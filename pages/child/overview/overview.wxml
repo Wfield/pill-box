@@ -12,14 +12,14 @@
     <!-- Medication alert notification -->
     <view wx:if="{{showMedAlert}}" class="alert-card">
       <view class="alert-header">
-        <icon name="warn" size="40" color="#F43F5E" stroke="1.8" />
+        <icon name="warn" size="40" color="#DC3545" stroke="1.8" />
         <text class="alert-title">服药提醒</text>
         <text class="alert-time">{{medAlerts[0].minutesAgo}}分钟前</text>
       </view>
       <view class="alert-body">
         <view wx:for="{{medAlerts}}" wx:for-item="a" wx:key="id" class="alert-item">
           <view class="alert-med-icon">
-            <icon name="pill" size="40" color="#F43F5E" stroke="1.8" />
+            <icon name="pill" size="40" color="#DC3545" stroke="1.8" />
           </view>
           <view class="alert-text">
             <text class="alert-name">{{a.elderName}} {{a.time}} 的药还没吃</text>
@@ -47,14 +47,14 @@
       <text class="congrats-desc">{{congratsNames}} 今天按时完成了所有服药 🎉 给个鼓励吧</text>
       <button class="congrats-btn" bindtap="sendLike">
         <view class="alert-btn-content">
-          <icon name="thumbUp" size="40" color="#F43F5E" stroke="1.8" />
+          <icon name="thumbUp" size="40" color="#DC3545" stroke="1.8" />
           <text>给爸妈点个赞</text>
         </view>
       </button>
     </view>
 
     <view wx:if="{{likeSent}}" class="like-sent-card">
-      <icon name="check" size="32" color="#D97D38" stroke="2.5" />
+      <icon name="check" size="32" color="#0D9E5F" stroke="2.5" />
       <text>已发送鼓励，老人会收到提醒</text>
     </view>
 
@@ -66,7 +66,7 @@
           <view class="elder-meta">
             <text class="elder-name">{{e.name}}</text>
             <view wx:if="{{e.alerts > 0}}" class="elder-status warn">
-              <icon name="warn" size="24" color="#F43F5E" stroke="1.8" />
+              <icon name="warn" size="24" color="#DC3545" stroke="1.8" />
               <text>{{e.alerts}} 条通知</text>
             </view>
             <text wx:else class="elder-status ok">一切正常</text>
@@ -92,7 +92,7 @@
     <!-- Bind new elder -->
     <button class="bind-btn" bindtap="goToBindFlow">
       <view class="bind-btn-content">
-        <icon name="plus" size="40" color="#A8A29E" stroke="2.5" />
+        <icon name="plus" size="40" color="#7D848C" stroke="2.5" />
         <text>绑定新的老人</text>
       </view>
     </button>

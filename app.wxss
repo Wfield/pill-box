@@ -3,8 +3,8 @@
 
 page {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #EFE7DA;
-  color: #44403C;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
   font-size: 28rpx;
   line-height: 1.5;
   -webkit-tap-highlight-color: transparent;
@@ -37,25 +37,38 @@ button::after {
 
 .bottom-nav {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 132rpx;
-  height: calc(132rpx + constant(safe-area-inset-bottom));
-  height: calc(132rpx + env(safe-area-inset-bottom));
-  min-height: 132rpx;
-  padding-bottom: constant(safe-area-inset-bottom);
-  padding-bottom: env(safe-area-inset-bottom);
-  background: rgba(253, 251, 247, 0.98);
-  border-top: 2rpx solid #F3EBDD;
-  box-shadow: 0 -8rpx 24rpx rgba(41, 37, 36, 0.06);
+  left: 28rpx;
+  right: 28rpx;
+  bottom: 18rpx;
+  bottom: calc(0rpx + constant(safe-area-inset-bottom));
+  bottom: calc(0rpx + env(safe-area-inset-bottom));
+  height: 124rpx;
+  min-height: 124rpx;
+  padding: 8rpx 10rpx;
+  background: rgba(255, 255, 255, 0.96);
+  border: 2rpx solid var(--color-border);
+  border-radius: 999rpx;
+  box-shadow: 0 -4rpx 22rpx rgba(15, 23, 42, 0.08);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   z-index: 100;
+  backdrop-filter: blur(12rpx);
 }
 
 .with-bottom-nav {
   padding-bottom: 172rpx;
   padding-bottom: calc(172rpx + constant(safe-area-inset-bottom));
   padding-bottom: calc(172rpx + env(safe-area-inset-bottom));
+}
+
+.safe-scroll-bottom {
+  padding-bottom: 172rpx;
+  padding-bottom: calc(172rpx + constant(safe-area-inset-bottom));
+  padding-bottom: calc(172rpx + env(safe-area-inset-bottom));
+}
+
+.safe-action-bottom {
+  padding-bottom: 32rpx;
+  padding-bottom: calc(32rpx + constant(safe-area-inset-bottom));
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
 }

@@ -1,7 +1,7 @@
 <view class="page-container">
   <view class="header">
     <button class="back-btn" bindtap="goBack">
-      <icon name="chevronLeft" size="48" color="#E8924A" stroke="2.5" />
+      <icon name="chevronLeft" size="48" color="#22C57E" stroke="2.5" />
       <text>返回</text>
     </button>
     <text class="header-title">我的药盒</text>
@@ -14,7 +14,7 @@
   <scroll-view class="scroll-area" scroll-y>
     <view wx:for="{{medications}}" wx:for-item="med" wx:key="id" class="med-item">
       <view class="med-item-left">
-        <icon name="pill" size="56" color="#E8924A" stroke="1.8" />
+        <icon name="pill" size="56" color="#22C57E" stroke="1.8" />
       </view>
       <view class="med-item-body">
         <text class="med-name">{{med.name}}</text>
@@ -24,13 +24,13 @@
     </view>
 
     <view wx:if="{{medications.length === 0}}" class="empty-state">
-      <icon name="pillbox" size="120" color="#E8924A" stroke="2.5" />
+      <icon name="pillbox" size="120" color="#22C57E" stroke="2.5" />
       <text class="empty-text">药盒为空，点击右上角拍照添加药品</text>
     </view>
   </scroll-view>
 
   <view class="bottom-nav">
-    <nav-item style="flex:1;min-width:0;display:block;" icon="home" label="今日用药" active="{{false}}" activeColor="#E8924A" bind:tap="goBack" />
-    <nav-item style="flex:1;min-width:0;display:block;" icon="heart" label="血压" active="{{false}}" activeColor="#E8924A" bind:tap="goToBp" />
+    <nav-item style="flex:1;min-width:0;display:block;" icon="home" label="今日用药" active="{{false}}" activeColor="#22C57E" bind:tap="goBack" />
+    <nav-item style="flex:1;min-width:0;display:block;" icon="heart" label="血压" active="{{false}}" activeColor="#22C57E" bind:tap="goToBp" />
   </view>
 </view>

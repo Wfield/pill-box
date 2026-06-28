@@ -4,8 +4,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60rpx;
-  background: linear-gradient(135deg, #EFE7DA, #E5DACA);
+  padding: 56rpx 48rpx;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F7F8F9 58%, #E4E6E9 100%);
 }
 
 .content {
@@ -18,7 +18,7 @@
 
 .logo-section {
   text-align: center;
-  margin-bottom: 80rpx;
+  margin-bottom: 64rpx;
 }
 
 .logo-icon {
@@ -29,14 +29,14 @@
 .logo-title {
   font-size: 52rpx;
   font-weight: 700;
-  color: #292524;
+  color: #2D3238;
   display: block;
   margin-bottom: 12rpx;
 }
 
 .logo-subtitle {
   font-size: 28rpx;
-  color: #78716C;
+  color: #7D848C;
 }
 
 .role-section {
@@ -49,13 +49,14 @@
 
 .role-card {
   width: 100%;
-  padding: 48rpx;
-  border-radius: 36rpx;
+  min-height: 224rpx;
+  padding: 44rpx;
+  border-radius: 28rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16rpx;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.08);
   transition: transform 0.2s;
   cursor: pointer;
 }
@@ -65,13 +66,13 @@
 }
 
 .role-card.elderly {
-  background: linear-gradient(135deg, #FDFBF7, #FAF6EE);
-  border: 2rpx solid #F3EBDD;
+  background: linear-gradient(135deg, #FFFFFF, #F7F8F9);
+  border: 2rpx solid #E4E6E9;
 }
 
 .role-card.child {
-  background: linear-gradient(135deg, #FFF7ED, #FFEDD5);
-  border: 2rpx solid #FED7AA;
+  background: linear-gradient(135deg, #FFF8F0, #F7F8F9);
+  border: 2rpx solid #F0B47B;
 }
 
 .role-icon-wrap {
@@ -85,15 +86,17 @@
 .role-name {
   font-size: 36rpx;
   font-weight: 700;
-  color: #292524;
+  color: #2D3238;
 }
 
 .role-desc {
   font-size: 26rpx;
-  color: #78716C;
+  color: #7D848C;
+  text-align: center;
+  line-height: 1.45;
 }
 
 .footer-text {
   font-size: 22rpx;
-  color: #A8A29E;
+  color: #7D848C;
 }

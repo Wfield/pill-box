@@ -2,6 +2,7 @@
   position: relative;
   overflow: hidden;
   width: 100%;
+  min-height: 104rpx;
   padding: 28rpx;
   font-size: 36rpx;
   font-weight: 700;
@@ -18,13 +19,15 @@
 }
 
 .take-btn.ready {
-  background-color: #E8924A;
+  background-color: #22C57E;
   color: #FFFFFF;
+  box-shadow: 0 8rpx 20rpx rgba(34, 197, 126, 0.2);
 }
 
 .take-btn.done {
-  background-color: #22C55E;
+  background-color: #22C57E;
   color: #FFFFFF;
+  box-shadow: 0 8rpx 20rpx rgba(34, 197, 94, 0.16);
 }
 
 .take-btn.large {

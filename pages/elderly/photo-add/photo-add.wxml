@@ -7,7 +7,7 @@
   </view>
   <view class="camera-view">
     <view class="camera-guide">
-      <icon name="camera" size="112" color="#A8A29E" stroke="1.8" />
+      <icon name="camera" size="112" color="#7D848C" stroke="1.8" />
       <text class="guide-text">请把药盒放入框内</text>
     </view>
   </view>
@@ -21,7 +21,7 @@
 <view wx:elif="{{step === 2}}" class="page-recognize">
   <view class="top-bar">
     <button class="back-btn" bindtap="goBack">
-      <icon name="chevronLeft" size="40" color="#E8924A" stroke="2.5" />
+      <icon name="chevronLeft" size="40" color="#22C57E" stroke="2.5" />
       <text>重拍</text>
     </button>
     <text class="top-title">识别结果</text>
@@ -30,11 +30,11 @@
   <view class="recognize-body">
     <view class="recognize-card">
       <view class="photo-placeholder">
-        <icon name="cameraLg" size="80" color="#A8A29E" stroke="1.8" />
+        <icon name="cameraLg" size="80" color="#7D848C" stroke="1.8" />
         <text class="photo-label">药盒照片</text>
       </view>
       <view class="recognize-badge">
-        <icon name="sparkle" size="40" color="#E8924A" stroke="1.8" />
+        <icon name="sparkle" size="40" color="#22C57E" stroke="1.8" />
         <text class="badge-text">已识别到</text>
       </view>
       <text class="med-name">{{recognizedName}}</text>
@@ -51,7 +51,7 @@
 <view wx:elif="{{step === 3}}" class="page-times">
   <view class="top-bar">
     <button class="back-btn" bindtap="goBack">
-      <icon name="chevronLeft" size="40" color="#E8924A" stroke="2.5" />
+      <icon name="chevronLeft" size="40" color="#22C57E" stroke="2.5" />
       <text>返回</text>
     </button>
     <text class="top-title">什么时间吃？</text>

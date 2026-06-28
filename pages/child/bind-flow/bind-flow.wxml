@@ -1,7 +1,7 @@
 <view class="page-container">
   <view class="top-bar">
     <button class="back-btn" bindtap="goBack">
-      <icon name="chevronLeft" size="48" color="#78716C" stroke="2.5" />
+      <icon name="chevronLeft" size="48" color="#7D848C" stroke="2.5" />
     </button>
     <text class="page-title">绑定老人</text>
   </view>
@@ -10,7 +10,7 @@
   <view wx:if="{{step === 0}}" class="step-content">
     <view class="step-icon-section">
       <view class="step-icon">
-        <icon name="user" size="72" color="#E8924A" stroke="1.8" />
+        <icon name="user" size="72" color="#22C57E" stroke="1.8" />
       </view>
       <text class="step-title">输入老人的手机号</text>
       <text class="step-desc">老人需先安装此 App 并选择"为自己使用"</text>
@@ -29,7 +29,7 @@
   <!-- Step 1: Waiting -->
   <view wx:elif="{{step === 1}}" class="step-content centered">
     <view class="waiting-icon anim-pulse">
-      <icon name="bell" size="80" color="#E8924A" stroke="1.8" />
+      <icon name="bell" size="80" color="#22C57E" stroke="1.8" />
     </view>
     <text class="step-title">等待老人确认</text>
     <text class="waiting-desc">已向老人手机发送绑定邀请，老人在 App 内点击"同意"后即绑定成功</text>

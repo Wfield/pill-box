@@ -1,8 +1,8 @@
 <!-- BP Record Step 1: Camera -->
 <view wx:if="{{bpRecordStep === 1}}" class="fullscreen-page bp-record-page">
   <view class="camera-header bp-record-header">
-    <button class="text-btn warm" bindtap="backFromBpRecord">
-      <icon name="chevronLeft" size="40" color="#E8924A" stroke="2.5" />
+    <button class="text-btn" bindtap="backFromBpRecord">
+      <icon name="chevronLeft" size="40" color="#0D9E5F" stroke="2.5" />
       <text>返回</text>
     </button>
     <text class="header-title">拍照记录</text>
@@ -12,18 +12,17 @@
     <view class="bp-camera-panel">
       <view class="camera-frame bp-camera-frame">
         <view wx:if="{{!bpRecordValues.sys}}" class="camera-hint">
-          <icon name="heart" size="80" color="#A8A29E" stroke="1.8" />
+          <icon name="heart" size="80" color="#7D848C" stroke="1.8" />
           <text class="hint-text">对准血压计屏幕</text>
         </view>
         <view wx:if="{{bpRecordValues.sys}}" class="camera-done">
-          <icon name="check" size="96" color="#F0A868" stroke="2.5" />
+          <icon name="check" size="96" color="#22C57E" stroke="2.5" />
           <text class="camera-done-text">已拍摄</text>
           <button class="retake-btn" bindtap="bpRetakePhoto">重新拍照</button>
         </view>
       </view>
       <button wx:if="{{!bpRecordValues.sys}}" class="shutter-btn bp-shutter-btn" bindtap="bpTakePhoto"></button>
     </view>
-    <!-- Values input -->
     <view class="bp-input-section">
       <text class="section-title">{{bpRecordValues.sys ? '识别结果（可修改）' : '请拍照或手动填写数值'}}</text>
       <view class="bp-input-grid">
@@ -64,147 +63,176 @@
   </view>
 </view>
 
-<!-- Main home tab -->
 <view wx:else class="page-container">
-  <!-- Home Tab -->
   <view wx:if="{{currentTab === 'home'}}" class="tab-content">
-    <!-- Top bar: Streak + Pillbox button -->
-    <view class="top-bar">
-      <view class="streak-section">
-        <icon name="flame" size="56" color="#E8924A" stroke="1.8" />
-        <view class="streak-text">
-          <text class="streak-label">连续按时服药</text>
-          <view class="streak-count">
-            <text class="streak-num">{{streak}}</text>
-            <text class="streak-unit">天</text>
-            <text class="streak-comment">真棒～</text>
-          </view>
-        </view>
-      </view>
-      <view class="pillbox-btn" bindtap="goToMeds">
-        <view class="pillbox-visual">
-          <view class="pillbox-lid"></view>
-          <view class="pillbox-body">
-            <view class="pillbox-line vertical"></view>
-            <view class="pillbox-line horizontal"></view>
-            <view class="pillbox-dot dot-a"></view>
-            <view class="pillbox-dot dot-b"></view>
-            <view class="pillbox-dot dot-c"></view>
-            <view class="pillbox-dot dot-d"></view>
-          </view>
-        </view>
-        <text class="pillbox-label">我的药盒</text>
-      </view>
-    </view>
-
     <scroll-view class="main-scroll" scroll-y enable-back-to-top>
-      <!-- Encouragement -->
-      <view wx:if="{{!encouragementSeen}}" class="encouragement-card">
-        <view class="encouragement-body">
-          <view class="encouragement-avatar">👩</view>
-          <view class="encouragement-content">
-            <text class="encouragement-meta">{{encouragement.from}} · {{encouragement.time}}</text>
-            <text class="encouragement-text">{{encouragement.text}}</text>
-          </view>
-          <button class="encouragement-btn" bindtap="dismissEncouragement">好的</button>
+      <view class="home-header">
+        <view class="brand-mark">
+          <icon name="plus" size="42" color="#FFFFFF" stroke="2.8" />
+        </view>
+        <view class="brand-copy">
+          <text class="brand-title">智能药盒</text>
+          <text class="brand-subtitle">今天 6/8 · 老人端首页</text>
+        </view>
+        <view class="role-switch">
+          <text class="role-pill active">自己用</text>
+          <text class="role-pill">家人管</text>
         </view>
       </view>
 
-      <!-- Missed dose cards -->
-      <view wx:for="{{missedMeds}}" wx:for-item="med" wx:key="id" class="card-wrapper">
-        <missed-dose-card med="{{med}}" bind:makeup="handleTakeMed" />
+      <view class="card hero-card">
+        <view class="hero-top">
+          <view class="hero-copy">
+            <text class="eyebrow">连续按时服药</text>
+            <view class="hero-title">
+              <text class="streak-num">{{streak}}</text>
+              <text class="streak-unit">天</text>
+            </view>
+            <text class="hero-sub">{{nextMed ? nextMed.name + '将在 ' + nextMed.time + ' 提醒，建议' + nextMed.note + '。' : '今天的用药都已记录完成。'}}</text>
+          </view>
+          <view class="pillbox-visual" bindtap="goToMeds">
+            <view class="pillbox-line h1"></view>
+            <view class="pillbox-line h2"></view>
+            <view class="pillbox-line v1"></view>
+          </view>
+        </view>
+        <view class="hero-actions">
+          <button class="btn primary" bindtap="showReminder">查看提醒</button>
+          <button class="btn secondary" bindtap="goToMeds">我的药盒</button>
+        </view>
       </view>
 
-      <!-- Next dose card -->
-      <view wx:if="{{nextMed}}" class="card-wrapper">
-        <next-dose-card med="{{nextMed}}" bind:take="handleTakeMed" />
+      <view class="section-title">
+        <text class="section-heading">下一次服药</text>
+        <text class="section-meta">{{nextMed ? '待确认' : '已完成'}}</text>
       </view>
-      <view wx:else class="all-done-card">
-        <icon name="check" size="80" color="#E8924A" stroke="3" />
+      <view wx:if="{{nextMed}}" class="card dose-card">
+        <view class="time-badge">{{nextMed.time}}</view>
+        <view class="dose-main">
+          <text class="dose-name">{{nextMed.name}}</text>
+          <text class="dose-desc">{{nextMed.dose}} · {{nextMed.note}}</text>
+        </view>
+        <button class="take-btn" data-id="{{nextMed.id}}" bindtap="handleTakeMed">我已服用</button>
+      </view>
+      <view wx:else class="card all-done-card">
+        <view class="done-icon">
+          <icon name="check" size="58" color="#FFFFFF" stroke="3" />
+        </view>
         <text class="done-text">今天的药都吃完啦</text>
       </view>
 
-      <!-- Pending medications (non-next) -->
-      <view wx:for="{{pendingMeds}}" wx:for-item="med" wx:key="id" class="med-card">
-        <view class="med-card-left">
-          <view class="med-icon-wrap">
-            <icon name="clock" size="48" color="#E8924A" stroke="1.8" />
+      <view class="section-title">
+        <text class="section-heading">今日用药</text>
+        <text class="section-meta">{{medications.length}} 项</text>
+      </view>
+      <view class="med-list">
+        <view wx:for="{{missedMeds}}" wx:for-item="med" wx:key="id" class="med-row missed">
+          <view class="icon-circle danger">
+            <icon name="clock" size="40" color="#DC3545" stroke="2" />
           </view>
+          <view class="med-main">
+            <text class="med-name">{{med.name}}</text>
+            <text class="med-desc">{{med.time}} · {{med.dose}} · {{med.note}}</text>
+          </view>
+          <button class="chip warn" data-id="{{med.id}}" bindtap="handleTakeMed">补服</button>
         </view>
-        <view class="med-card-body">
-          <text class="med-time">{{med.time}}</text>
-          <text class="med-name">{{med.name}}</text>
-          <text class="med-desc">{{med.dose}} · {{med.note}}</text>
+        <view wx:for="{{pendingMeds}}" wx:for-item="med" wx:key="id" class="med-row">
+          <view class="icon-circle">
+            <icon name="clock" size="40" color="#7D848C" stroke="2" />
+          </view>
+          <view class="med-main">
+            <text class="med-name">{{med.name}}</text>
+            <text class="med-desc">{{med.time}} · {{med.dose}} · {{med.note}}</text>
+          </view>
+          <text class="chip">待服用</text>
         </view>
-        <text class="med-status-badge">待服用</text>
+        <view wx:for="{{takenMeds}}" wx:for-item="med" wx:key="id" class="med-row done">
+          <view class="icon-circle ok">
+            <icon name="check" size="40" color="#FFFFFF" stroke="3" />
+          </view>
+          <view class="med-main">
+            <text class="med-name">{{med.name}}</text>
+            <text class="med-desc">{{med.time}} · {{med.dose}} · {{med.note}}</text>
+          </view>
+          <text class="chip ok">{{med.status === 'late' ? '已补服' : '已服用'}}</text>
+        </view>
       </view>
 
-      <!-- Taken medications -->
-      <view wx:for="{{takenMeds}}" wx:for-item="med" wx:key="id" class="med-card taken">
-        <view class="med-card-left taken-icon">
-          <icon name="check" size="56" color="#FFFFFF" stroke="3" />
+      <view wx:if="{{!encouragementSeen}}" class="card message-card">
+        <view class="avatar">丽</view>
+        <view class="message-main">
+          <text class="message-meta">{{encouragement.from}} · {{encouragement.time}}</text>
+          <text class="message-text">{{encouragement.text}}</text>
         </view>
-        <view class="med-card-body">
-          <text class="med-time">{{med.time}}</text>
-          <text class="med-name">{{med.name}}</text>
-          <text class="med-desc">{{med.dose}} · {{med.note}}</text>
-        </view>
-        <text class="med-status-badge taken-badge">已服用</text>
+        <button class="mini-btn" bindtap="dismissEncouragement">好的</button>
       </view>
-
-      <view style="height: 40rpx;"></view>
     </scroll-view>
   </view>
 
-  <!-- BP Tab -->
   <view wx:elif="{{currentTab === 'bp'}}" class="tab-content">
-    <view class="bp-page-header">
-      <text class="bp-page-title">血压记录</text>
-    </view>
-    <view class="period-bar">
+    <scroll-view class="main-scroll bp-scroll" scroll-y>
+      <view class="bp-header">
+        <text class="bp-title">血压</text>
+        <text class="bp-subtitle">{{periodLabel}}</text>
+      </view>
       <view class="period-tabs">
-        <button wx:for="{{['day','week','month','year']}}" wx:for-item="p" wx:key="*this"
-          class="period-tab {{bpPeriod === p ? 'active' : ''}}"
-          data-period="{{p}}" bindtap="switchBpPeriod">{{p === 'day' ? '天' : p === 'week' ? '周' : p === 'month' ? '月' : '年'}}</button>
+        <button wx:for="{{bpPeriods}}" wx:for-item="p" wx:key="key"
+          class="period-tab {{bpPeriod === p.key ? 'active' : ''}}"
+          data-period="{{p.key}}" bindtap="switchBpPeriod">{{p.label}}</button>
       </view>
       <view class="period-nav">
         <button class="nav-arrow" data-delta="1" bindtap="shiftBpPeriod">
-          <icon name="chevronLeft" size="32" color="#57534E" stroke="2.5" />
+          <icon name="chevronLeft" size="32" color="#2D3238" stroke="2.5" />
         </button>
         <text class="period-label">{{periodLabel}}</text>
         <button class="nav-arrow {{bpPeriodOffset === 0 ? 'disabled' : ''}}" data-delta="-1" bindtap="shiftBpPeriod">
-          <icon name="chevron" size="32" color="{{bpPeriodOffset === 0 ? '#D6D3D1' : '#57534E'}}" stroke="2.5" />
+          <icon name="chevron" size="32" color="{{bpPeriodOffset === 0 ? '#E4E6E9' : '#2D3238'}}" stroke="2.5" />
         </button>
       </view>
-    </view>
 
-    <scroll-view class="main-scroll" scroll-y>
-      <view class="chart-section" catchtouchstart="onTouchStart" catchtouchend="onTouchEnd">
-        <view class="chart-card">
-          <view class="chart-header">
-            <text class="chart-title">血压</text>
-            <view class="chart-legend">
-              <view class="legend-item"><view class="legend-dot" style="background:#E8924A;"></view><text>高压</text></view>
-              <view class="legend-item"><view class="legend-dot" style="background:#7C9CB5;"></view><text>低压</text></view>
+      <view class="bp-summary">
+        <view class="metric-card">
+          <text class="metric-label">最近血压</text>
+          <view class="metric-value">
+            <text>{{bpRecords[0].sys}}</text>
+            <text class="slash">/</text>
+            <text>{{bpRecords[0].dia}}</text>
+          </view>
+          <text class="metric-unit">mmHg</text>
+        </view>
+        <view class="metric-card blue">
+          <text class="metric-label">心率</text>
+          <view class="metric-value">
+            <text>{{bpRecords[0].hr}}</text>
+          </view>
+          <text class="metric-unit">次/分</text>
+        </view>
+      </view>
+
+      <view class="card bp-chart-card" catchtouchstart="onTouchStart" catchtouchend="onTouchEnd">
+        <view class="chart-header">
+          <text class="chart-title">趋势</text>
+          <view class="chart-legend">
+            <view class="legend-item"><view class="legend-dot sys"></view><text>高压</text></view>
+            <view class="legend-item"><view class="legend-dot dia"></view><text>低压</text></view>
+          </view>
+        </view>
+        <scroll-view scroll-x class="bar-scroll">
+          <view class="bar-chart">
+            <view wx:for="{{bpData}}" wx:for-item="d" wx:key="label" class="bar-group">
+              <view class="bar-pair">
+                <view class="bar sys" style="height: {{d.sysHeight}}rpx;"></view>
+                <view class="bar dia" style="height: {{d.diaHeight}}rpx;"></view>
+              </view>
+              <text class="bar-label">{{d.label}}</text>
             </view>
           </view>
-          <line-trend data="{{bpData}}" lines="{{bpLines}}" height="130" warnLines="{{bpWarnLines}}" />
-        </view>
-        <view class="chart-card">
-          <view class="chart-header">
-            <text class="chart-title">心率</text>
-            <view class="chart-legend">
-              <view class="legend-item"><view class="legend-dot" style="background:#C99A8C;"></view><text>心率</text></view>
-              <view class="legend-item"><view class="legend-dot" style="background:#A8A29E;"></view><text>正常 60-100</text></view>
-            </view>
-          </view>
-          <line-trend data="{{bpData}}" lines="{{hrLines}}" height="110" warnLines="{{hrWarnLines}}" />
-        </view>
-        <text class="swipe-hint">← 左右滑动趋势图查看其他时段 →</text>
+        </scroll-view>
+        <text class="swipe-hint">左右滑动查看其他时段</text>
       </view>
 
       <button class="record-btn" bindtap="startBPRecord">
-        <icon name="camera" size="64" color="#FFFFFF" stroke="1.8" />
+        <icon name="camera" size="58" color="#FFFFFF" stroke="1.8" />
         <view class="record-text">
           <text class="record-title">拍照记录</text>
           <text class="record-desc">对着血压计屏幕拍一下</text>
@@ -214,23 +242,36 @@
       <text class="recent-title">最近记录</text>
       <view wx:for="{{bpRecords}}" wx:for-item="r" wx:key="*this" class="bp-record-item {{r.sys >= 140 || r.dia >= 90 ? 'abnormal' : ''}}">
         <view class="record-left">
-          <text class="record-sys {{r.sys >= 140 ? 'text-rose' : ''}}">{{r.sys}}</text>
+          <text class="record-sys {{r.sys >= 140 ? 'text-danger' : ''}}">{{r.sys}}</text>
           <text class="record-sep">/</text>
-          <text class="record-dia {{r.dia >= 90 ? 'text-rose' : ''}}">{{r.dia}}</text>
+          <text class="record-dia {{r.dia >= 90 ? 'text-danger' : ''}}">{{r.dia}}</text>
           <text class="record-unit">mmHg</text>
         </view>
         <view class="record-right">
           <text class="record-date">{{r.date}}</text>
-          <text class="record-hr {{r.hr < 60 || r.hr > 100 ? 'text-rose' : ''}}">心率 {{r.hr}}</text>
+          <text class="record-hr {{r.hr < 60 || r.hr > 100 ? 'text-danger' : ''}}">心率 {{r.hr}}</text>
         </view>
       </view>
-      <view style="height: 40rpx;"></view>
     </scroll-view>
   </view>
 
-  <!-- Bottom Navigation -->
+  <view wx:elif="{{currentTab === 'my'}}" class="tab-content">
+    <scroll-view class="main-scroll" scroll-y>
+      <view class="card profile-card">
+        <view class="profile-avatar">我</view>
+        <view class="profile-main">
+          <text class="profile-title">我的</text>
+          <text class="profile-desc">药盒、提醒和家人绑定设置</text>
+        </view>
+      </view>
+      <button class="profile-action" bindtap="goToMeds">我的药盒</button>
+      <button class="profile-action secondary" bindtap="showReminder">查看提醒</button>
+    </scroll-view>
+  </view>
+
   <view class="bottom-nav">
-    <nav-item style="flex:1;min-width:0;display:block;" icon="home" label="今日用药" active="{{currentTab === 'home'}}" activeColor="#E8924A" bind:tap="switchTab" data-tab="home" />
-    <nav-item style="flex:1;min-width:0;display:block;" icon="heart" label="血压" active="{{currentTab === 'bp'}}" activeColor="#E8924A" bind:tap="switchTab" data-tab="bp" />
+    <nav-item style="flex:1;min-width:0;display:block;" icon="home" label="首页" active="{{currentTab === 'home'}}" activeColor="#0D9E5F" bind:tap="switchTab" data-tab="home" />
+    <nav-item style="flex:1;min-width:0;display:block;" icon="chart" label="血压" active="{{currentTab === 'bp'}}" activeColor="#0D9E5F" bind:tap="switchTab" data-tab="bp" />
+    <nav-item style="flex:1;min-width:0;display:block;" icon="user" label="我的" active="{{currentTab === 'my'}}" activeColor="#0D9E5F" bind:tap="switchTab" data-tab="my" />
   </view>
 </view>

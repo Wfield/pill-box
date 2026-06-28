@@ -1,7 +1,7 @@
 <view class="page-wrapper">
   <view class="content">
     <view class="logo-section">
-      <icon class="logo-icon" name="pillbox" size="120" color="#E8924A" stroke="2.5" />
+      <icon class="logo-icon" name="pillbox" size="120" color="#22C57E" stroke="2.5" />
       <text class="logo-title">智能药盒</text>
       <text class="logo-subtitle">请选择您的角色</text>
     </view>
@@ -9,7 +9,7 @@
     <view class="role-section">
       <view class="role-card elderly" bindtap="goToElderly">
         <view class="role-icon-wrap">
-          <icon name="user" size="80" color="#E8924A" stroke="1.8" />
+          <icon name="user" size="80" color="#22C57E" stroke="1.8" />
         </view>
         <text class="role-name">我为自己使用</text>
         <text class="role-desc">管理自己的用药和健康</text>
@@ -17,7 +17,7 @@
 
       <view class="role-card child" bindtap="goToChild">
         <view class="role-icon-wrap">
-          <icon name="user" size="80" color="#D97D38" stroke="1.8" />
+          <icon name="user" size="80" color="#0D9E5F" stroke="1.8" />
         </view>
         <text class="role-name">我帮家人管理</text>
         <text class="role-desc">远程关注老人的用药情况</text>

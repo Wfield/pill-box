@@ -1,6 +1,6 @@
 <view class="nav-item {{active ? 'active' : ''}}" bindtap="onClick" style="{{active ? 'color:' + activeColor : ''}}">
   <view class="nav-icon-wrap {{active ? 'active' : ''}}">
-    <icon name="{{icon}}" size="56" color="{{active ? activeColor : '#A8A29E'}}" stroke="1.9" />
+    <icon name="{{icon}}" size="56" color="{{active ? activeColor : '#7D848C'}}" stroke="1.9" />
   </view>
   <text class="nav-label {{active ? 'font-bold' : ''}}">{{label}}</text>
 </view>
